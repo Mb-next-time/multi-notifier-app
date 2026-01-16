@@ -1,23 +1,24 @@
 from typing import Annotated
-from datetime import timedelta
 
 from fastapi import APIRouter, Path, status, HTTPException
 
-from notifications.schemas import Notification, BodyNotification
+from notifications import constants
+from notifications.schemas import Notification, BodyNotification, RepeatInterval
+
 
 api = APIRouter(prefix="/notifications")
 
 
 fake_data_notifications = {
-    1: Notification(id=1, title="title-1", body="body-1", interval=10),
-    2: Notification(id=2, title="title-2", body="body-2", interval=0),
-    3: Notification(id=3, title="title-3", body="body-3", interval=5),
+    1: Notification(id=1, title="title-1", body="body-1", interval=RepeatInterval(how_often=constants.RepeatInterval.ONCE.value, step=0)),
+    2: Notification(id=2, title="title-2", body="body-2", interval=RepeatInterval(how_often=constants.RepeatInterval.DAILY.value, step=1)),
+    3: Notification(id=3, title="title-3", body="body-3", interval=RepeatInterval(how_often=constants.RepeatInterval.MONTHLY.value, step=0)),
 }
 
 
 @api.get(
     path="/",
-    tags=["notifications"],
+    tags=[constants.NotificationLiteral.TAGS],
     response_model=list[Notification]
 )
 async def list_notifications():
@@ -26,7 +27,7 @@ async def list_notifications():
 
 @api.post(
     path="/",
-    tags=["notifications"],
+    tags=[constants.NotificationLiteral.TAGS],
     status_code=status.HTTP_201_CREATED,
     response_model=Notification
 )
@@ -42,7 +43,7 @@ async def create_notification(notification: BodyNotification) -> Notification:
 
 @api.put(
     path="/{notification_id}",
-    tags=["notifications"],
+    tags=[constants.NotificationLiteral.TAGS],
     response_model=Notification
 )
 async def update_notification(notification_id: Annotated[int, Path(gt=0)], notification: BodyNotification):
@@ -54,7 +55,7 @@ async def update_notification(notification_id: Annotated[int, Path(gt=0)], notif
 
 @api.delete(
     path="/{notification_id}",
-    tags=["notifications"],
+    tags=[constants.NotificationLiteral.TAGS],
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_notification(notification_id: Annotated[int, Path(gt=0)]):
