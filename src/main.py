@@ -4,4 +4,4 @@ import notifications
 
 app = FastAPI()
 
-app.include_router(notifications.router.api)
+app.include_router(notifications.router.router)

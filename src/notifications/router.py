@@ -6,7 +6,7 @@ from notifications import constants
 from notifications.schemas import Notification, BodyNotification, RepeatInterval
 
 
-api = APIRouter(prefix="/notifications")
+router = APIRouter(prefix="/notifications")
 
 
 fake_data_notifications = {
@@ -16,7 +16,7 @@ fake_data_notifications = {
 }
 
 
-@api.get(
+@router.get(
     path="/",
     tags=[constants.NotificationLiteral.TAGS],
     response_model=list[Notification]
@@ -25,7 +25,7 @@ async def list_notifications():
     return fake_data_notifications.values()
 
 
-@api.post(
+@router.post(
     path="/",
     tags=[constants.NotificationLiteral.TAGS],
     status_code=status.HTTP_201_CREATED,
@@ -41,7 +41,7 @@ async def create_notification(notification: BodyNotification) -> Notification:
     return new_notification
 
 
-@api.put(
+@router.put(
     path="/{notification_id}",
     tags=[constants.NotificationLiteral.TAGS],
     response_model=Notification
@@ -53,7 +53,7 @@ async def update_notification(notification_id: Annotated[int, Path(gt=0)], notif
     return updated_notification
 
 
-@api.delete(
+@router.delete(
     path="/{notification_id}",
     tags=[constants.NotificationLiteral.TAGS],
     status_code=status.HTTP_204_NO_CONTENT
