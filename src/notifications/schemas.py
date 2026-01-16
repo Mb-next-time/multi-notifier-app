@@ -18,7 +18,7 @@ class RepeatInterval(BaseModel):
 class BaseNotification(BaseModel):
     title: str | None = None
     body: str | None = None
-    interval: RepeatInterval
+    repeat_interval: RepeatInterval
 
 class BodyNotification(BaseNotification):
     ...

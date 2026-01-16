@@ -10,9 +10,9 @@ api = APIRouter(prefix="/notifications")
 
 
 fake_data_notifications = {
-    1: Notification(id=1, title="title-1", body="body-1", interval=RepeatInterval(how_often=constants.RepeatInterval.ONCE.value, step=0)),
-    2: Notification(id=2, title="title-2", body="body-2", interval=RepeatInterval(how_often=constants.RepeatInterval.DAILY.value, step=1)),
-    3: Notification(id=3, title="title-3", body="body-3", interval=RepeatInterval(how_often=constants.RepeatInterval.MONTHLY.value, step=0)),
+    1: Notification(id=1, title="title-1", body="body-1", repeat_interval=RepeatInterval(how_often=constants.RepeatInterval.ONCE.value, step=0)),
+    2: Notification(id=2, title="title-2", body="body-2", repeat_interval=RepeatInterval(how_often=constants.RepeatInterval.DAILY.value, step=1)),
+    3: Notification(id=3, title="title-3", body="body-3", repeat_interval=RepeatInterval(how_often=constants.RepeatInterval.MONTHLY.value, step=0)),
 }
 
 
@@ -36,7 +36,7 @@ async def create_notification(notification: BodyNotification) -> Notification:
         id=4,
         title=notification.title,
         body=notification.body,
-        interval=notification.interval,
+        repeat_interval=notification.repeat_interval,
     )
     return new_notification
 
