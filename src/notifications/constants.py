@@ -4,6 +4,7 @@ class NotificationLiteral(Enum):
     HOW_OFTEN = "how_often"
     STEP = "step"
     TAGS = "notifications"
+    NOTIFICATION_ID = "notification_id"
 
 
 class RepeatInterval(Enum):

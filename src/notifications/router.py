@@ -1,12 +1,17 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Path, status, HTTPException
+from fastapi.params import Depends
+from sqlalchemy.orm import Session
 
 from notifications import constants
+from notifications.constants import NotificationLiteral
 from notifications.schemas import Notification, BodyNotification, RepeatInterval
+from notifications.service import NotificationService
+from database import get_db
 
 
-router = APIRouter(prefix="/notifications")
+notification_router = APIRouter(prefix="/notifications")
 
 
 fake_data_notifications = {
@@ -16,49 +21,72 @@ fake_data_notifications = {
 }
 
 
-@router.get(
+@notification_router.get(
     path="/",
-    tags=[constants.NotificationLiteral.TAGS],
+    tags=[NotificationLiteral.TAGS],
     response_model=list[Notification]
 )
-async def list_notifications():
-    return fake_data_notifications.values()
+async def list_notifications(database: Annotated[Session, Depends(get_db)]):
+    notification_service = NotificationService(database)
+    return notification_service.get_list()
 
 
-@router.post(
+@notification_router.post(
     path="/",
-    tags=[constants.NotificationLiteral.TAGS],
+    tags=[NotificationLiteral.TAGS],
     status_code=status.HTTP_201_CREATED,
     response_model=Notification
 )
-async def create_notification(notification: BodyNotification) -> Notification:
-    new_notification = Notification(
-        id=4,
-        title=notification.title,
-        body=notification.body,
-        repeat_interval=notification.repeat_interval,
-    )
-    return new_notification
+async def create_notification(
+    notification: BodyNotification,
+    database: Annotated[Session, Depends(get_db)]
+) -> Notification:
+    notification_service = NotificationService(database)
+    try:
+        created_notification = notification_service.create(notification)
+    except Exception as err:
+        # here should be logging for the error
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Something went wrong, please try again later"
+        )
+    return created_notification
 
-
-@router.put(
+@notification_router.get(
     path="/{notification_id}",
     tags=[constants.NotificationLiteral.TAGS],
     response_model=Notification
 )
-async def update_notification(notification_id: Annotated[int, Path(gt=0)], notification: BodyNotification):
-    if notification_id not in fake_data_notifications:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    updated_notification = notification.model_copy(update={"id": notification.id})
-    return updated_notification
+async def get_notification(
+    notification_id: Annotated[int, Path(gt=0)],
+    database: Annotated[Session, Depends(get_db)],
+):
+    service = NotificationService(database)
+    return service.get_by_id(notification_id)
 
 
-@router.delete(
+@notification_router.put(
+    path="/{notification_id}",
+    tags=[constants.NotificationLiteral.TAGS],
+    response_model=Notification
+)
+async def update_notification(
+    notification_id: Annotated[int, Path(gt=0)],
+    notification: BodyNotification,
+    database: Annotated[Session, Depends(get_db)],
+):
+    service = NotificationService(database)
+    return service.update(notification_id, notification)
+
+
+@notification_router.delete(
     path="/{notification_id}",
     tags=[constants.NotificationLiteral.TAGS],
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def delete_notification(notification_id: Annotated[int, Path(gt=0)]):
-    if notification_id not in fake_data_notifications:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    # remove from database the entity
+async def delete_notification(
+    notification_id: Annotated[int, Path(gt=0)],
+    database: Annotated[Session, Depends(get_db)],
+):
+    service = NotificationService(database)
+    service.delete(notification_id)
