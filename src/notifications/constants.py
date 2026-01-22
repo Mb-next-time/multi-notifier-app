@@ -5,6 +5,8 @@ class NotificationLiteral(Enum):
     STEP = "step"
     TAGS = "notifications"
     NOTIFICATION_ID = "notification_id"
+    NOTIFICATION_NOT_FOUND = "Notification not found"
+    SOMETHING_WENT_WRONG = "Something went wrong, please try again later"
 
 
 class RepeatInterval(Enum):

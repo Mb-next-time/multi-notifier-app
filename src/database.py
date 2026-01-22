@@ -7,7 +7,7 @@ DATABASE_URL = "sqlite:///foo.db"
 
 engine = create_engine(
     DATABASE_URL,
-    echo=False,
+    echo=True,
     pool_pre_ping=True,
 )
 

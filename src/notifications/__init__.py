@@ -1,3 +1,1 @@
-from notifications import router
-
-__all__ = ["router"]
+from notifications import routers

@@ -3,8 +3,8 @@ from pydantic import BaseModel, Field, field_validator
 from notifications import constants
 
 class RepeatInterval(BaseModel):
-    how_often: str = constants.RepeatInterval.ONCE.value
-    step: int = Field(default=0, ge=0)
+    how_often: str
+    step: int = Field(ge=0)
 
     @field_validator(constants.NotificationLiteral.HOW_OFTEN.value)
     @classmethod
@@ -14,7 +14,6 @@ class RepeatInterval(BaseModel):
             raise ValueError(f"'{value}' should be one of [{allowed_values}]")
         return value
 
-
 class BaseNotification(BaseModel):
     title: str | None = None
     body: str | None = None
@@ -22,6 +21,9 @@ class BaseNotification(BaseModel):
 
 class BodyNotification(BaseNotification):
     ...
+
+class UpdateNotification(BaseNotification):
+    repeat_interval: RepeatInterval | None = None
 
 class Notification(BaseNotification):
     id: int
