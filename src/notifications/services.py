@@ -13,7 +13,7 @@ class NotificationService:
     def create(self, body_notification: schemas.BodyNotification) -> models.Notification:
         notification = models.Notification(**body_notification.model_dump())
         self.database.add(notification)
-        self.database.commit()
+        self.database.flush()
         return notification
 
     def get_list(self) -> Sequence[models.Notification]:
@@ -32,7 +32,7 @@ class NotificationService:
             raise NoResultFound
         for field, value in body_notification.model_dump(exclude_unset=True).items():
             setattr(notification, field, value)
-        self.database.commit()
+        self.database.flush()
         return notification
 
     def delete(self, notification_id: int) -> None:
@@ -40,4 +40,4 @@ class NotificationService:
         if not notification:
             raise NoResultFound
         self.database.delete(notification)
-        self.database.commit()
+        self.database.flush()

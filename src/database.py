@@ -1,3 +1,5 @@
+from typing import Generator, Any
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
@@ -13,9 +15,13 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
-def get_db() -> Session:
+def get_db() -> Generator[Session, Any, None]:
     db = SessionLocal()
     try:
         yield db
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()
