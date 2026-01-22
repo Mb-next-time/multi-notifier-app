@@ -1,6 +1,6 @@
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, Sequence, ScalarResult
 
 from notifications import schemas, models
 
@@ -16,8 +16,8 @@ class NotificationService:
         self.database.commit()
         return notification
 
-    def get_list(self):
-        notifications = self.database.execute(select(models.Notification)).scalars()
+    def get_list(self) -> Sequence[models.Notification]:
+        notifications = self.database.execute(select(models.Notification)).scalars().all()
         return notifications
 
     def get_by_id(self, notification_id: int) -> models.Notification:
