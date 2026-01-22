@@ -41,7 +41,7 @@ async def create_notification(
 ) -> Notification:
     try:
         created_notification = notification_service.create(notification)
-    except Exception as err:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=NotificationLiteral.SOMETHING_WENT_WRONG.value
@@ -85,7 +85,10 @@ async def update_notification(
     try:
         updated_notification = notification_service.update(notification_id, notification)
     except NoResultFound:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NotificationLiteral.NOTIFICATION_NOT_FOUND)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=NotificationLiteral.NOTIFICATION_NOT_FOUND.value
+        )
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
