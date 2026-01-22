@@ -7,7 +7,7 @@ from sqlalchemy.exc import NoResultFound
 from notifications import constants
 from notifications.constants import NotificationLiteral
 from notifications.schemas import Notification, BodyNotification, UpdateNotification
-from notifications.services import NotificationService
+from notifications.service import NotificationService
 from notifications.dependencies import get_notification_service
 
 
