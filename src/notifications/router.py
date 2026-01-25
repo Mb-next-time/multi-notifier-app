@@ -2,16 +2,16 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path, status, HTTPException
 from fastapi.params import Depends
-from sqlalchemy.exc import NoResultFound
 
 from notifications import constants
 from notifications.constants import NotificationLiteral
 from notifications.schemas import Notification, BodyNotification, UpdateNotification
 from notifications.service import NotificationService
 from notifications.dependencies import get_notification_service
+from notifications.exceptions import NotificationNotFound
 
 
-notification_router = APIRouter(prefix="/notifications")
+notification_router = APIRouter(prefix=f"/{NotificationLiteral.URL.value}")
 
 @notification_router.get(
     path="/",
@@ -49,7 +49,7 @@ async def create_notification(
     return created_notification
 
 @notification_router.get(
-    path="/{notification_id}",
+    path=f"/{{{NotificationLiteral.NOTIFICATION_ID.value}}}",
     tags=[constants.NotificationLiteral.TAGS],
     response_model=Notification
 )
@@ -59,7 +59,7 @@ async def get_notification(
 ):
     try:
         notification = notification_service.get_by_id(notification_id)
-    except NoResultFound:
+    except NotificationNotFound:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=NotificationLiteral.NOTIFICATION_NOT_FOUND.value
@@ -73,7 +73,7 @@ async def get_notification(
 
 
 @notification_router.put(
-    path="/{notification_id}",
+    path=f"/{{{NotificationLiteral.NOTIFICATION_ID.value}}}",
     tags=[constants.NotificationLiteral.TAGS],
     response_model=Notification
 )
@@ -84,7 +84,7 @@ async def update_notification(
 ):
     try:
         updated_notification = notification_service.update(notification_id, notification)
-    except NoResultFound:
+    except NotificationNotFound:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=NotificationLiteral.NOTIFICATION_NOT_FOUND.value
@@ -92,13 +92,13 @@ async def update_notification(
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=NotificationLiteral.SOMETHING_WENT_WRONG
+            detail=NotificationLiteral.SOMETHING_WENT_WRONG.value
         )
     return updated_notification
 
 
 @notification_router.delete(
-    path="/{notification_id}",
+    path=f"/{{{NotificationLiteral.NOTIFICATION_ID.value}}}",
     tags=[constants.NotificationLiteral.TAGS],
     status_code=status.HTTP_204_NO_CONTENT
 )
@@ -108,7 +108,7 @@ async def delete_notification(
 ):
     try:
         notification_service.delete(notification_id)
-    except NoResultFound:
+    except NotificationNotFound:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=NotificationLiteral.NOTIFICATION_NOT_FOUND.value
@@ -116,5 +116,5 @@ async def delete_notification(
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=NotificationLiteral.SOMETHING_WENT_WRONG
+            detail=NotificationLiteral.SOMETHING_WENT_WRONG.value
         )

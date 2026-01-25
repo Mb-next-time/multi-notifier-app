@@ -7,6 +7,14 @@ class NotificationLiteral(Enum):
     NOTIFICATION_ID = "notification_id"
     NOTIFICATION_NOT_FOUND = "Notification not found"
     SOMETHING_WENT_WRONG = "Something went wrong, please try again later"
+    URL = "notifications"
+
+
+class NotificationSchemeFields(Enum):
+    TITLE = "title"
+    BODY = "body"
+    REPEAT_INTERVAL = "repeat_interval"
+
 
 
 class RepeatInterval(Enum):

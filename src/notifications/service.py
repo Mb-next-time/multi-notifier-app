@@ -1,8 +1,8 @@
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from sqlalchemy import select, Sequence, ScalarResult
+from sqlalchemy import select, Sequence
 
 from notifications import schemas, models
+from notifications.exceptions import NotificationNotFound
 
 
 class NotificationService:
@@ -23,13 +23,13 @@ class NotificationService:
     def get_by_id(self, notification_id: int) -> models.Notification:
         notification = self.database.execute(select(models.Notification).filter_by(id=notification_id)).scalar_one_or_none()
         if not notification:
-            raise NoResultFound
+            raise NotificationNotFound
         return notification
 
     def update(self, notification_id: int, body_notification: schemas.UpdateNotification) -> models.Notification:
         notification = self.database.execute(select(models.Notification).filter_by(id=notification_id)).scalar_one_or_none()
         if not notification:
-            raise NoResultFound
+            raise NotificationNotFound
         for field, value in body_notification.model_dump(exclude_unset=True).items():
             setattr(notification, field, value)
         self.database.flush()
@@ -38,6 +38,6 @@ class NotificationService:
     def delete(self, notification_id: int) -> None:
         notification = self.database.execute(select(models.Notification).filter_by(id=notification_id)).scalar_one_or_none()
         if not notification:
-            raise NoResultFound
+            raise NotificationNotFound
         self.database.delete(notification)
         self.database.flush()
