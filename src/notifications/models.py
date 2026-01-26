@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
-from sqlalchemy import String, Text, DateTime, JSON
+from sqlalchemy import String, Text, JSON
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from notifications.constants import NotificationLiteral, RepeatInterval
@@ -15,7 +15,7 @@ class Notification(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(255), default=None, nullable=True)
     body: Mapped[str] = mapped_column(Text(), default=None, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now())
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now(timezone.utc))
     is_active: Mapped[bool] = mapped_column(default=True)
     repeat_interval = mapped_column(JSON(), default={
         NotificationLiteral.HOW_OFTEN: RepeatInterval.ONCE,
