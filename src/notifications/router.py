@@ -3,19 +3,18 @@ from typing import Annotated
 from fastapi import APIRouter, Path, status, HTTPException
 from fastapi.params import Depends
 
-from notifications import constants
 from notifications.constants import NotificationLiteral
 from notifications.schemas import Notification, BodyNotification, UpdateNotification
 from notifications.service import NotificationService
 from notifications.dependencies import get_notification_service
 from notifications.exceptions import NotificationNotFound
+from src.constants import HttpClientCommonErrors
 
 
-notification_router = APIRouter(prefix=f"/{NotificationLiteral.URL.value}")
+notification_router = APIRouter(prefix=f"/{NotificationLiteral.URL.value}", tags=[NotificationLiteral.TAGS])
 
 @notification_router.get(
     path="/",
-    tags=[NotificationLiteral.TAGS],
     response_model=list[Notification]
 )
 async def list_notifications(notification_service: Annotated[NotificationService, Depends(get_notification_service)]):
@@ -24,14 +23,13 @@ async def list_notifications(notification_service: Annotated[NotificationService
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=NotificationLiteral.SOMETHING_WENT_WRONG.value
+            detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
         )
     return notifications
 
 
 @notification_router.post(
     path="/",
-    tags=[NotificationLiteral.TAGS],
     status_code=status.HTTP_201_CREATED,
     response_model=Notification
 )
@@ -44,13 +42,12 @@ async def create_notification(
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=NotificationLiteral.SOMETHING_WENT_WRONG.value
+            detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
         )
     return created_notification
 
 @notification_router.get(
     path=f"/{{{NotificationLiteral.NOTIFICATION_ID.value}}}",
-    tags=[constants.NotificationLiteral.TAGS],
     response_model=Notification
 )
 async def get_notification(
@@ -67,14 +64,13 @@ async def get_notification(
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=NotificationLiteral.SOMETHING_WENT_WRONG.value
+            detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
         )
     return notification
 
 
 @notification_router.put(
     path=f"/{{{NotificationLiteral.NOTIFICATION_ID.value}}}",
-    tags=[constants.NotificationLiteral.TAGS],
     response_model=Notification
 )
 async def update_notification(
@@ -92,14 +88,13 @@ async def update_notification(
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=NotificationLiteral.SOMETHING_WENT_WRONG.value
+            detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
         )
     return updated_notification
 
 
 @notification_router.delete(
     path=f"/{{{NotificationLiteral.NOTIFICATION_ID.value}}}",
-    tags=[constants.NotificationLiteral.TAGS],
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_notification(
@@ -116,5 +111,5 @@ async def delete_notification(
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=NotificationLiteral.SOMETHING_WENT_WRONG.value
+            detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
         )
