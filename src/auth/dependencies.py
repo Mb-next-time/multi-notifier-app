@@ -8,6 +8,7 @@ import jwt
 from starlette import status
 
 from auth import models
+from auth.constants import AuthLiterals
 from auth.services import AuthService, UserService
 from database import get_db
 from auth.config import JWT_SECRET_KEY, JWT_ALGORITHM
@@ -34,7 +35,7 @@ def get_current_authenticated_user(
     token = authorization.credentials
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        username = payload.get("sub")
+        username = payload.get(AuthLiterals.JWT_SUBJECT.value)
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)

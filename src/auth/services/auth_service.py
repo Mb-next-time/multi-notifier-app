@@ -6,6 +6,7 @@ from auth.schemas import UserIn, Token
 from auth import models
 from auth.utils import hash_password, verify_password, TokenUtils
 from auth.services.user_service import UserService
+from auth.constants import AuthLiterals
 
 
 class AuthService:
@@ -28,6 +29,6 @@ class AuthService:
         user = self._authenticate_user(user_in)
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = TokenUtils.create_access_token(
-            data={"sub": user.username}, expires_delta=access_token_expires
+            data={AuthLiterals.JWT_SUBJECT.value: user.username}, expires_delta=access_token_expires
         )
         return Token(access_token=access_token, token_type="bearer")
