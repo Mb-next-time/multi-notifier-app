@@ -4,7 +4,7 @@ from auth.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from auth.exceptions import AuthIsFailed
 from auth.schemas import UserIn, Token
 from auth import models
-from auth.utils import password_hash, TokenUtils
+from auth.utils import hash_password, verify_password, TokenUtils
 from auth.services.user_service import UserService
 
 
@@ -15,12 +15,12 @@ class AuthService:
 
     def _authenticate_user(self, user_in: UserIn) -> models.User:
         user = self.user_service.get_by_username(user_in.username)
-        if not (user and password_hash.verify(user_in.password, user.password)):
+        if not (user and verify_password(user_in.password, user.password)):
             raise AuthIsFailed
         return user
 
     def register_user(self, user_in: UserIn) -> models.User:
-        user_in.password = password_hash.hash(user_in.password)
+        user_in.password = hash_password(user_in.password)
         user = self.user_service.create_user(user_in)
         return user
 
