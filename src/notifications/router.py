@@ -9,7 +9,8 @@ from notifications.service import NotificationService
 from notifications.dependencies import get_notification_service
 from notifications.exceptions import NotificationNotFound
 from src.constants import HttpClientCommonErrors
-
+from auth.dependencies import get_current_authenticated_user
+from auth.models import User
 
 notification_router = APIRouter(prefix=f"/{NotificationLiteral.URL.value}", tags=[NotificationLiteral.TAGS])
 
@@ -17,7 +18,10 @@ notification_router = APIRouter(prefix=f"/{NotificationLiteral.URL.value}", tags
     path="/",
     response_model=list[Notification]
 )
-async def list_notifications(notification_service: Annotated[NotificationService, Depends(get_notification_service)]):
+async def list_notifications(
+    notification_service: Annotated[NotificationService,Depends(get_notification_service)],
+    user: Annotated[User, Depends(get_current_authenticated_user)]
+):
     try:
         notifications = notification_service.get_list()
     except Exception:
@@ -36,6 +40,7 @@ async def list_notifications(notification_service: Annotated[NotificationService
 async def create_notification(
     notification: BodyNotification,
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
+    user: Annotated[User, Depends(get_current_authenticated_user)]
 ) -> Notification:
     try:
         created_notification = notification_service.create(notification)
@@ -53,6 +58,7 @@ async def create_notification(
 async def get_notification(
     notification_id: Annotated[int, Path(gt=0)],
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
+    user: Annotated[User, Depends(get_current_authenticated_user)],
 ):
     try:
         notification = notification_service.get_by_id(notification_id)
@@ -77,6 +83,7 @@ async def update_notification(
     notification_id: Annotated[int, Path(gt=0)],
     notification: UpdateNotification,
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
+    user: Annotated[User, Depends(get_current_authenticated_user)],
 ):
     try:
         updated_notification = notification_service.update(notification_id, notification)
@@ -95,11 +102,12 @@ async def update_notification(
 
 @notification_router.delete(
     path=f"/{{{NotificationLiteral.NOTIFICATION_ID.value}}}",
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_notification(
     notification_id: Annotated[int, Path(gt=0)],
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
+    user: Annotated[User, Depends(get_current_authenticated_user)],
 ):
     try:
         notification_service.delete(notification_id)
