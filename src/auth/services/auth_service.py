@@ -1,7 +1,9 @@
 from datetime import timedelta
 
+from sqlalchemy.exc import IntegrityError
+
 from auth.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from auth.exceptions import AuthIsFailed
+from auth.exceptions import AuthIsFailed, AuthDuplication
 from auth.schemas import UserIn, Token
 from auth import models
 from auth.utils import hash_password, verify_password, TokenUtils
@@ -22,7 +24,11 @@ class AuthService:
 
     def register_user(self, user_in: UserIn) -> models.User:
         user_in.password = hash_password(user_in.password)
-        user = self.user_service.create_user(user_in)
+        try:
+            user = self.user_service.create_user(user_in)
+        except IntegrityError as e:
+            raise AuthDuplication
+
         return user
 
     def login_user(self, user_in: UserIn) -> Token:

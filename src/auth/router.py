@@ -2,10 +2,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
-from sqlalchemy.exc import IntegrityError
 from starlette import status
 
-from auth.exceptions import AuthIsFailed
+from auth.exceptions import AuthIsFailed, AuthDuplication
 from auth.schemas import UserIn, UserOut, Token
 from auth.services import AuthService
 from auth.constants import AuthLiterals
@@ -25,7 +24,7 @@ async def register(
 ):
     try:
         created_user = auth_service.register_user(user_in)
-    except IntegrityError:
+    except AuthDuplication:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User with this username already exists, please use a other",
