@@ -6,6 +6,7 @@ from fastapi import status
 from sqlalchemy.exc import DatabaseError
 
 from src.notifications.constants import NotificationLiteral, RepeatInterval,NotificationSchemeFields
+from tests.conftest import body_notification
 
 
 @pytest.mark.parametrize(
@@ -34,8 +35,8 @@ from src.notifications.constants import NotificationLiteral, RepeatInterval,Noti
         },
     ]
 )
-def test_create(client: TestClient, body_notification: dict[str, Any]):
-    response = client.post(f"/{NotificationLiteral.URL.value}/", json=body_notification)
+def test_create(client_auth: TestClient, body_notification: dict[str, Any]):
+    response = client_auth.post(f"/{NotificationLiteral.URL.value}/", json=body_notification)
     assert response.status_code == status.HTTP_201_CREATED
 
 # Invalid bodies for creating the notification
@@ -76,11 +77,15 @@ def test_create(client: TestClient, body_notification: dict[str, Any]):
         },
     ]
 )
-def test_create_invalid_cases(client: TestClient, body_notification: dict[str, Any]):
-    response = client.post(f"/{NotificationLiteral.URL.value}/", json=body_notification)
+def test_create_invalid_cases(client_auth: TestClient, body_notification: dict[str, Any]):
+    response = client_auth.post(f"/{NotificationLiteral.URL.value}/", json=body_notification)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 def test_create_occurred_database_exception(client_factory_with_raised_exception, body_notification: dict[str, Any]):
-    client = client_factory_with_raised_exception("create", DatabaseError)
-    response = client.post(f"/{NotificationLiteral.URL.value}/", json=body_notification)
-    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    with client_factory_with_raised_exception("create", DatabaseError) as client:
+        response = client.post(f"/{NotificationLiteral.URL.value}/", json=body_notification)
+        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+
+def test_create_check_not_auth_user(client_not_auth, body_notification: dict[str, Any]):
+    response = client_not_auth.post(f"/{NotificationLiteral.URL.value}/", json=body_notification)
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED

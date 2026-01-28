@@ -39,8 +39,8 @@ service_method = "update"
         }),
     ]
 )
-def test_update(client: TestClient, notification_id: int, body_notification: dict[str, Any]):
-    response = client.put(f"/{NotificationLiteral.URL.value}/{notification_id}", json=body_notification)
+def test_update(client_auth: TestClient, notification_id: int, body_notification: dict[str, Any]):
+    response = client_auth.put(f"/{NotificationLiteral.URL.value}/{notification_id}", json=body_notification)
     assert response.status_code == status.HTTP_200_OK
 
 # Invalid bodies for updating the notification
@@ -88,16 +88,20 @@ def test_update(client: TestClient, notification_id: int, body_notification: dic
         }),
     ]
 )
-def test_update_invalid_cases(client: TestClient, notification_id: int, body_notification: dict[str, Any]):
-    response = client.put(f"/{NotificationLiteral.URL.value}/{notification_id}", json=body_notification)
+def test_update_invalid_cases(client_auth: TestClient, notification_id: int, body_notification: dict[str, Any]):
+    response = client_auth.put(f"/{NotificationLiteral.URL.value}/{notification_id}", json=body_notification)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 def test_update_occurred_database_exception(client_factory_with_raised_exception, body_notification: dict[str, Any]):
-    client = client_factory_with_raised_exception(service_method, DatabaseError)
-    response = client.put(f"/{NotificationLiteral.URL.value}/1", json=body_notification)
-    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    with client_factory_with_raised_exception(service_method, DatabaseError) as client:
+        response = client.put(f"/{NotificationLiteral.URL.value}/1", json=body_notification)
+        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
 
 def test_update_not_found_notification_exception(client_factory_with_raised_exception, body_notification: dict[str, Any]):
-    client = client_factory_with_raised_exception(service_method, NotificationNotFound)
-    response = client.put(f"/{NotificationLiteral.URL.value}/1", json=body_notification)
-    assert response.status_code == status.HTTP_404_NOT_FOUND
+    with client_factory_with_raised_exception(service_method, NotificationNotFound) as client:
+        response = client.put(f"/{NotificationLiteral.URL.value}/1", json=body_notification)
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+def test_update_check_not_auth_user(client_not_auth: TestClient, body_notification: dict[str, Any]):
+    response = client_not_auth.put(f"/{NotificationLiteral.URL.value}/1", json=body_notification)
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
