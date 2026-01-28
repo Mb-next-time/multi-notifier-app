@@ -2,15 +2,13 @@ from contextlib import contextmanager
 from unittest.mock import Mock
 
 import pytest
-from fastapi.testclient import TestClient
 
-from auth.dependencies import get_current_authenticated_user
-from auth.models import User
 from notifications import schemas
 from notifications.constants import NotificationLiteral, RepeatInterval, NotificationSchemeFields
 from notifications.dependencies import get_notification_service
 from src.main import app
 from notifications.models import Notification
+from tests import TestClientBuilder
 
 
 class FakeNotificationService:
@@ -60,51 +58,32 @@ def body_notification():
         }
     }
 
-class TestClientBuilder:
+class TestClientNotificationsBuilder(TestClientBuilder):
 
-    @classmethod
-    def add_auth(cls):
-        app.dependency_overrides[get_current_authenticated_user] = lambda: User(id=1)
-        return cls
-
-    @classmethod
-    def add_exception(cls, method: str, exception: Exception):
+    def add_exception(self, method: str, exception: Exception):
         mock = Mock()
         setattr(mock, method, Mock(side_effect=exception))
         app.dependency_overrides[get_notification_service] = lambda: mock
-        return cls
+        return self
 
-    @classmethod
-    def add_fake_notification_service(cls):
+    def add_fake_notification_service(self):
         app.dependency_overrides[get_notification_service] = lambda: FakeNotificationService()
-        return cls
-
-    @classmethod
-    def build(cls):
-        return TestClient(app)
-
-    @classmethod
-    def clear(cls):
-        app.dependency_overrides.clear()
-        return cls
+        return self
 
 @pytest.fixture()
 def client_auth():
-    with TestClientBuilder.add_fake_notification_service().add_auth().build() as test_client:
-        yield test_client
-    TestClientBuilder.clear()
+    with TestClientNotificationsBuilder() as test_client_notifications_builder:
+        yield test_client_notifications_builder.add_fake_notification_service().add_auth().build()
 
 @pytest.fixture()
 def client_not_auth():
-    with TestClientBuilder.add_fake_notification_service().build() as test_client:
-        yield test_client
-    TestClientBuilder.clear()
+    with TestClientNotificationsBuilder() as test_client_notifications_builder:
+        yield test_client_notifications_builder.add_fake_notification_service().build()
 
 @pytest.fixture()
 def client_factory_with_raised_exception():
     @contextmanager
     def _create(method: str, exception: Exception):
-        with TestClientBuilder.add_exception(method, exception).add_auth().build() as test_client:
-            yield test_client
-        TestClientBuilder.clear()
+        with TestClientNotificationsBuilder() as test_client_notifications_builder:
+            yield test_client_notifications_builder.add_exception(method, exception).add_auth().build()
     return _create

@@ -6,7 +6,6 @@ from fastapi import status
 from sqlalchemy.exc import DatabaseError
 
 from src.notifications.constants import NotificationLiteral, RepeatInterval,NotificationSchemeFields
-from tests.conftest import body_notification
 
 
 @pytest.mark.parametrize(
