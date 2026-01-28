@@ -16,12 +16,12 @@ engine = create_engine(
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 def get_db() -> Generator[Session, Any, None]:
-    db = SessionLocal()
+    database_session = SessionLocal()
     try:
-        yield db
-        db.commit()
+        yield database_session
+        database_session.commit()
     except Exception:
-        db.rollback()
+        database_session.rollback()
         raise
     finally:
-        db.close()
+        database_session.close()
