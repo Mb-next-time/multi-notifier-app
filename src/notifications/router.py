@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Path, status, HTTPException
@@ -24,7 +25,8 @@ async def list_notifications(
 ):
     try:
         notifications = notification_service.get_list()
-    except Exception:
+    except Exception as error:
+        logging.warning(str(error))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
@@ -43,8 +45,9 @@ async def create_notification(
     user: Annotated[User, Depends(get_current_authenticated_user)]
 ) -> Notification:
     try:
-        created_notification = notification_service.create(notification)
-    except Exception:
+        created_notification = notification_service.create(user, notification)
+    except Exception as error:
+        logging.warning(str(error))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
@@ -62,12 +65,14 @@ async def get_notification(
 ):
     try:
         notification = notification_service.get_by_id(notification_id)
-    except NotificationNotFound:
+    except NotificationNotFound as error:
+        logging.warning(str(error))
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=NotificationLiteral.NOTIFICATION_NOT_FOUND.value
         )
-    except Exception:
+    except Exception as error:
+        logging.warning(str(error))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
@@ -87,12 +92,14 @@ async def update_notification(
 ):
     try:
         updated_notification = notification_service.update(notification_id, notification)
-    except NotificationNotFound:
+    except NotificationNotFound as error:
+        logging.warning(str(error))
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=NotificationLiteral.NOTIFICATION_NOT_FOUND.value
         )
-    except Exception:
+    except Exception as error:
+        logging.warning(str(error))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
@@ -111,12 +118,14 @@ async def delete_notification(
 ):
     try:
         notification_service.delete(notification_id)
-    except NotificationNotFound:
+    except NotificationNotFound as error:
+        logging.warning(str(error))
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=NotificationLiteral.NOTIFICATION_NOT_FOUND.value
         )
-    except Exception:
+    except Exception as error:
+        logging.warning(str(error))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
