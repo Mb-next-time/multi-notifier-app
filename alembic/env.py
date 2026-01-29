@@ -21,7 +21,8 @@ if config.config_file_name is not None:
 # target_metadata = None
 from notifications.models import Notification
 from auth.models import User
-target_metadata = (Notification.metadata, User.metadata)
+from src.database import Base
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -67,8 +68,12 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
+        # render_as_batch=True - the options only for SQLite
+        # because SQLite almost no support for the ALTER statement
+        # it works by strategy "move and copy"
+        # link to doc https://alembic.sqlalchemy.org/en/latest/batch.html
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection, target_metadata=target_metadata, render_as_batch=True,
         )
 
         with context.begin_transaction():
