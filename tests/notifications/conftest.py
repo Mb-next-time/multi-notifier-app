@@ -1,8 +1,12 @@
 from contextlib import contextmanager
+from typing import Annotated
 from unittest.mock import Mock
 
 import pytest
+from fastapi import Depends
 
+from auth.dependencies import get_current_authenticated_user
+from auth.models import User
 from notifications import schemas
 from notifications.constants import NotificationLiteral, RepeatInterval, NotificationSchemeFields
 from notifications.dependencies import get_notification_service
@@ -32,14 +36,14 @@ class FakeNotificationService:
     def create(self, body_notification: schemas.BodyNotification) -> Notification:
         return Notification(id=5, **body_notification.model_dump())
 
-    def get_by_id(self, notification_id: int) -> Notification:
+    def get(self, notification_id: int) -> Notification:
         return Notification(id=notification_id, repeat_interval={
             NotificationLiteral.HOW_OFTEN.value: RepeatInterval.ONCE.value,
             NotificationLiteral.STEP.value: 0,
         })
 
     def update(self, notification_id: int, body_notification: schemas.UpdateNotification) -> Notification:
-        notification = self.get_by_id(notification_id)
+        notification = self.get(notification_id)
         for field, value in body_notification.model_dump(exclude_unset=True).items():
             setattr(notification, field, value)
         return notification
@@ -55,8 +59,13 @@ def body_notification():
         NotificationSchemeFields.REPEAT_INTERVAL.value: {
             NotificationLiteral.HOW_OFTEN.value: RepeatInterval.ONCE.value,
             NotificationLiteral.STEP.value: 0,
-        }
+        },
     }
+
+def get_fake_notification_service(
+    user: Annotated[User, Depends(get_current_authenticated_user)]
+) -> FakeNotificationService:
+    return FakeNotificationService()
 
 class TestClientNotificationsBuilder(TestClientBuilder):
 
@@ -67,7 +76,7 @@ class TestClientNotificationsBuilder(TestClientBuilder):
         return self
 
     def add_fake_notification_service(self):
-        app.dependency_overrides[get_notification_service] = lambda: FakeNotificationService()
+        app.dependency_overrides[get_notification_service] = get_fake_notification_service
         return self
 
 @pytest.fixture()

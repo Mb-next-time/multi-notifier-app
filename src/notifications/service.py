@@ -4,11 +4,13 @@ from sqlalchemy import select, Sequence
 from notifications import schemas, models
 from notifications.exceptions import NotificationNotFound
 
+from auth.models import User
 
 class NotificationService:
 
-    def __init__(self, database_session: Session):
+    def __init__(self, database_session: Session, user: User):
         self.database_session = database_session
+        self.user = user
 
     def create(self, body_notification: schemas.BodyNotification) -> models.Notification:
         notification = models.Notification(**body_notification.model_dump())
@@ -20,7 +22,7 @@ class NotificationService:
         notifications = self.database_session.execute(select(models.Notification)).scalars().all()
         return notifications
 
-    def get_by_id(self, notification_id: int) -> models.Notification:
+    def get(self, notification_id: int) -> models.Notification:
         notification = self.database_session.execute(select(models.Notification).filter_by(id=notification_id)).scalar_one_or_none()
         if not notification:
             raise NotificationNotFound
