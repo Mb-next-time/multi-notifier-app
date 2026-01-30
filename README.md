@@ -4,7 +4,8 @@ First version will work with email notifications.
 
 ### Installing
 `poetry install`
-### Note: Activate your virtual environment before run commands
+### Note: Please activate your virtual environment before run commands
+`$(poetry env activate)`
 ### Apply Migrations
 `alembic upgrade head`
 ### Run tests
