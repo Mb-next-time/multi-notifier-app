@@ -4,7 +4,10 @@ First version will work with email notifications.
 
 ### Installing
 `poetry install`
-### Local start (*before run the project activate your virtual environment*)
-`fastapi dev src/main.py`
+### Note: Activate your virtual environment before run commands
 ### Apply Migrations
 `alembic upgrade head`
+### Run tests
+`pytest`
+### Local start
+`fastapi dev src/main.py`
