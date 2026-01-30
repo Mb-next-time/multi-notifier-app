@@ -9,7 +9,7 @@ from auth.schemas import UserIn, UserOut, Token
 from auth.services import AuthService
 from auth.constants import AuthLiterals
 from auth.dependencies import get_auth_service
-from src.constants import HttpClientCommonErrors
+from constants import HttpClientCommonErrors
 
 auth_router = APIRouter(prefix=f"/{AuthLiterals.URL.value}", tags=[AuthLiterals.TAGS])
 

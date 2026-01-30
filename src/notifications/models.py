@@ -4,7 +4,7 @@ from sqlalchemy import String, Text, JSON, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from notifications.constants import NotificationLiteral, RepeatInterval
-from src.database import Base
+from database import Base
 
 class Notification(Base):
     __tablename__ = "notification"

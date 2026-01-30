@@ -9,7 +9,7 @@ from notifications.schemas import Notification, BodyNotification, UpdateNotifica
 from notifications.service import NotificationService
 from notifications.dependencies import get_notification_service
 from notifications.exceptions import NotificationNotFound
-from src.constants import HttpClientCommonErrors
+from constants import HttpClientCommonErrors
 
 
 notification_router = APIRouter(prefix=f"/{NotificationLiteral.URL.value}", tags=[NotificationLiteral.TAGS])
