@@ -4,7 +4,7 @@ from fastapi import status
 from sqlalchemy.exc import DatabaseError
 
 from notifications.exceptions import NotificationNotFound
-from src.notifications.constants import NotificationLiteral
+from notifications.constants import NotificationLiteral
 
 service_method = "delete"
 

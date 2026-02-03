@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 from fastapi import status
 from sqlalchemy.exc import DatabaseError
 
-from src.notifications.constants import NotificationLiteral
+from notifications.constants import NotificationLiteral
 
 
 def test_get_list_is_success(client_auth: TestClient):

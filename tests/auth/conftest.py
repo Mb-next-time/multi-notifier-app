@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from auth.dependencies import get_auth_service
-from src.main import app
+from main import app
 from tests import TestClientBuilder
 
 class TestClientAuthBuilder(TestClientBuilder):

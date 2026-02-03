@@ -42,6 +42,12 @@ class UpdateNotification(BaseNotification):
 
 class ResponseNotification(BaseNotification):
     id: int
+    startup_at: datetime
+
+    @field_validator(constants.NotificationSchemeFields.STARTUP_AT.value)
+    @classmethod
+    def startup_at_validator(cls, value: datetime) -> datetime:
+        return value.astimezone(timezone.utc)
 
 class FilterNotification(BaseModel):
     model_config = {"extra": "forbid"}

@@ -1,10 +1,8 @@
-from unittest.mock import Mock
-
 from starlette.testclient import TestClient
 
 from auth.dependencies import get_current_authenticated_user
 from auth.models import User
-from src.main import app
+from main import app
 
 
 class TestClientBuilder:
