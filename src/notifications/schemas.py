@@ -13,8 +13,8 @@ class RepeatInterval(BaseModel):
     @field_validator(constants.NotificationLiteral.HOW_OFTEN.value)
     @classmethod
     def how_often_validator(cls, value: str) -> str:
-        if value.strip().lower() not in constants.valid_repeat_intervals:
-            allowed_values: str = ", ".join(constants.valid_repeat_intervals)
+        if value.strip().lower() not in constants.VALID_REPEAT_INTERVALS:
+            allowed_values: str = ", ".join(constants.VALID_REPEAT_INTERVALS)
             raise ValueError(f"'{value}' should be one of [{allowed_values}]")
         return value
 

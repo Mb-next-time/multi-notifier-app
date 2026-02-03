@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException
@@ -9,7 +10,8 @@ from auth.schemas import UserIn, UserOut, Token
 from auth.services import AuthService
 from auth.constants import AuthLiterals
 from auth.dependencies import get_auth_service
-from constants import HttpClientCommonErrors
+from constants import EXCEPTION_INTERNAL_ERROR
+
 
 auth_router = APIRouter(prefix=f"/{AuthLiterals.URL.value}", tags=[AuthLiterals.TAGS])
 
@@ -24,17 +26,15 @@ async def register(
 ):
     try:
         created_user = auth_service.register_user(user_in)
-    except AuthDuplication:
+    except AuthDuplication as error:
+        logging.warning(str(error))
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User with this username already exists, please use a other",
         )
-    except Exception as e:
-        # to do logging
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
-        )
+    except Exception as error:
+        logging.warning(str(error))
+        raise EXCEPTION_INTERNAL_ERROR
     return created_user
 
 
@@ -49,15 +49,13 @@ async def login(
 ) -> Token:
     try:
         token = auth_service.login_user(user_in)
-    except AuthIsFailed:
+    except AuthIsFailed as error:
+        logging.warning(str(error))
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
         )
-    except Exception as e:
-        # to do logging
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=HttpClientCommonErrors.SOMETHING_WENT_WRONG.value
-        )
+    except Exception as error:
+        logging.warning(str(error))
+        raise EXCEPTION_INTERNAL_ERROR
     return token
