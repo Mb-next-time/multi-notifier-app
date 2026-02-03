@@ -24,7 +24,7 @@ class BaseNotification(BaseModel):
     repeat_interval: RepeatInterval
     startup_at: datetime
 
-    @field_validator(constants.NotificationLiteral.STARTUP_AT.value)
+    @field_validator(constants.NotificationSchemeFields.STARTUP_AT.value)
     @classmethod
     def startup_at_validator(cls, value: datetime) -> datetime:
         if not value.tzinfo or value.utcoffset() is None:
