@@ -2,10 +2,10 @@ import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Path, status, HTTPException
-from fastapi.params import Depends
+from fastapi.params import Depends, Query
 
-from notifications.constants import NotificationLiteral
-from notifications.schemas import Notification, BodyNotification, UpdateNotification
+from notifications.constants import NotificationLiteral, DEFAULT_NUMBER_PAGE, DEFAULT_PAGE_LIMIT
+from notifications.schemas import BodyNotification, UpdateNotification, ResponseNotification
 from notifications.service import NotificationService
 from notifications.dependencies import get_notification_service
 from notifications.exceptions import NotificationNotFound
@@ -16,13 +16,15 @@ notification_router = APIRouter(prefix=f"/{NotificationLiteral.URL.value}", tags
 
 @notification_router.get(
     path="/",
-    response_model=list[Notification]
+    response_model=list[ResponseNotification]
 )
 async def list_notifications(
     notification_service: Annotated[NotificationService,Depends(get_notification_service)],
+    page: Annotated[int, Query(gt=0)] = DEFAULT_NUMBER_PAGE,
+    limit: Annotated[int, Query(gt=0, le=100)] = DEFAULT_PAGE_LIMIT,
 ):
     try:
-        notifications = notification_service.get_list()
+        notifications = notification_service.get_list(page, limit)
     except Exception as error:
         logging.warning(str(error))
         raise HTTPException(
@@ -34,12 +36,12 @@ async def list_notifications(
 @notification_router.post(
     path="/",
     status_code=status.HTTP_201_CREATED,
-    response_model=Notification
+    response_model=ResponseNotification
 )
 async def create_notification(
     notification: BodyNotification,
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
-) -> Notification:
+):
     try:
         created_notification = notification_service.create(notification)
     except Exception as error:
@@ -52,7 +54,7 @@ async def create_notification(
 
 @notification_router.get(
     path=f"/{{{NotificationLiteral.NOTIFICATION_ID.value}}}",
-    response_model=Notification
+    response_model=ResponseNotification
 )
 async def get_notification(
     notification_id: Annotated[int, Path(gt=0)],
@@ -76,7 +78,7 @@ async def get_notification(
 
 @notification_router.put(
     path=f"/{{{NotificationLiteral.NOTIFICATION_ID.value}}}",
-    response_model=Notification
+    response_model=ResponseNotification
 )
 async def update_notification(
     notification_id: Annotated[int, Path(gt=0)],

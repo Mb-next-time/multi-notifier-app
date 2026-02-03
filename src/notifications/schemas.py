@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from pydantic import BaseModel, Field, field_validator
 
 from notifications import constants
@@ -18,6 +20,14 @@ class BaseNotification(BaseModel):
     title: str | None = None
     body: str | None = None
     repeat_interval: RepeatInterval
+    startup_at: datetime
+
+    @field_validator(constants.NotificationLiteral.STARTUP_AT.value)
+    @classmethod
+    def startup_at_validator(cls, value: datetime) -> datetime:
+        if not value.tzinfo or value.utcoffset() is None:
+            raise ValueError("startup_at must include timezone offset (e.g. Z or +hh:mm/-hh:mm)")
+        return value.astimezone(timezone.utc)
 
 class BodyNotification(BaseNotification):
     ...
@@ -25,8 +35,5 @@ class BodyNotification(BaseNotification):
 class UpdateNotification(BaseNotification):
     repeat_interval: RepeatInterval | None = None
 
-class Notification(BaseNotification):
+class ResponseNotification(BaseNotification):
     id: int
-
-
-

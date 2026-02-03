@@ -19,7 +19,7 @@ class Notification(Base):
         NotificationLiteral.HOW_OFTEN: RepeatInterval.ONCE,
         NotificationLiteral.STEP: 0
     })
-    startup_time: Mapped[datetime] = mapped_column()
+    startup_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     user: Mapped["User"] = relationship(back_populates="notifications")
 
