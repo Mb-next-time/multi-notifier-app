@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 
 from sqlalchemy.exc import IntegrityError
 
@@ -33,6 +33,7 @@ class AuthService:
 
     def login_user(self, user_in: UserIn) -> Token:
         user = self._authenticate_user(user_in)
+        user.last_login = datetime.now(timezone.utc)
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = TokenUtils.create_access_token(
             data={AuthLiterals.JWT_SUBJECT.value: user.username}, expires_delta=access_token_expires
