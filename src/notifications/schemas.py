@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 from pydantic import BaseModel, Field, field_validator
 
 from notifications import constants
+from notifications.constants import DEFAULT_NUMBER_PAGE, DEFAULT_PAGE_LIMIT
+
 
 class RepeatInterval(BaseModel):
     how_often: str
@@ -37,3 +39,9 @@ class UpdateNotification(BaseNotification):
 
 class ResponseNotification(BaseNotification):
     id: int
+
+class FilterNotification(BaseModel):
+    model_config = {"extra": "forbid"}
+
+    page: int = Field(DEFAULT_NUMBER_PAGE, gt=0)
+    limit: int = Field(DEFAULT_PAGE_LIMIT, gt=0, le=100)

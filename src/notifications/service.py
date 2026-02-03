@@ -3,8 +3,7 @@ from sqlalchemy import select, Sequence
 
 from notifications import schemas, models
 from notifications.exceptions import NotificationNotFound
-from notifications.constants import DEFAULT_PAGE_LIMIT, DEFAULT_NUMBER_PAGE
-
+from notifications.schemas import FilterNotification
 from auth.models import User
 
 class NotificationService:
@@ -31,13 +30,14 @@ class NotificationService:
         self.database_session.flush()
         return notification
 
-    def get_list(self, page: int = DEFAULT_NUMBER_PAGE, limit: int = DEFAULT_PAGE_LIMIT) -> Sequence[models.Notification]:
-        offset = (page - 1) * limit
+    def get_list(self, filter_notification: FilterNotification) -> Sequence[models.Notification]:
+        page_limit = filter_notification.limit
+        offset = (filter_notification.page - 1) * page_limit
         notifications = self.database_session.execute(
             select(models.Notification).where(
                 models.Notification.user_id == self.user.id,
                 models.Notification.is_active == True,
-            ).order_by(models.Notification.created_at.desc()).offset(offset).limit(limit)
+            ).order_by(models.Notification.created_at.desc()).offset(offset).limit(page_limit)
         ).scalars().all()
         return notifications
 

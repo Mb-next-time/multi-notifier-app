@@ -4,8 +4,8 @@ from typing import Annotated
 from fastapi import APIRouter, Path, status, HTTPException
 from fastapi.params import Depends, Query
 
-from notifications.constants import NotificationLiteral, DEFAULT_NUMBER_PAGE, DEFAULT_PAGE_LIMIT
-from notifications.schemas import BodyNotification, UpdateNotification, ResponseNotification
+from notifications.constants import NotificationLiteral
+from notifications.schemas import BodyNotification, UpdateNotification, ResponseNotification, FilterNotification
 from notifications.service import NotificationService
 from notifications.dependencies import get_notification_service
 from notifications.exceptions import NotificationNotFound
@@ -20,11 +20,10 @@ notification_router = APIRouter(prefix=f"/{NotificationLiteral.URL.value}", tags
 )
 async def list_notifications(
     notification_service: Annotated[NotificationService,Depends(get_notification_service)],
-    page: Annotated[int, Query(gt=0)] = DEFAULT_NUMBER_PAGE,
-    limit: Annotated[int, Query(gt=0, le=100)] = DEFAULT_PAGE_LIMIT,
+    filter_notification: Annotated[FilterNotification, Query()],
 ):
     try:
-        notifications = notification_service.get_list(page, limit)
+        notifications = notification_service.get_list(filter_notification)
     except Exception as error:
         logging.warning(str(error))
         raise HTTPException(
