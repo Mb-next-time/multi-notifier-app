@@ -29,6 +29,9 @@ class BaseNotification(BaseModel):
     def startup_at_validator(cls, value: datetime) -> datetime:
         if not value.tzinfo or value.utcoffset() is None:
             raise ValueError("startup_at must include timezone offset (e.g. Z or +hh:mm/-hh:mm)")
+        value = value.astimezone(timezone.utc)
+        if value < datetime.now(timezone.utc):
+            raise ValueError("startup_at must be set in future")
         return value.astimezone(timezone.utc)
 
 class BodyNotification(BaseNotification):
