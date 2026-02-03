@@ -15,7 +15,8 @@ class NotificationSchemeFields(Enum):
     BODY = "body"
     REPEAT_INTERVAL = "repeat_interval"
 
-
+DEFAULT_NUMBER_PAGE = 1
+DEFAULT_PAGE_LIMIT = 15
 
 class RepeatInterval(Enum):
     ONCE = "once"
