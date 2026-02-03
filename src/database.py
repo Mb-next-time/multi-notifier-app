@@ -3,9 +3,9 @@ from typing import Generator, Any
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
 
-# DATABASE_URL = "postgresql+psycopg2://user:pass@localhost:5432/mydb"
+DATABASE_URL = "postgresql+psycopg2://postgres:postgres@172.17.0.2:5432/app"
 # для SQLite: "sqlite:///./foo.db"
-DATABASE_URL = "sqlite:///foo.db"
+# DATABASE_URL = "sqlite:///foo.db"
 
 engine = create_engine(
     DATABASE_URL,
