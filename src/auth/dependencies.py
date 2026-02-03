@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
@@ -11,21 +12,30 @@ from auth import models
 from auth.constants import AuthLiterals
 from auth.services import AuthService, UserService
 from database import get_db
-from auth.config import JWT_SECRET_KEY, JWT_ALGORITHM
+from auth.config import JwtSettings
 from auth.schemas import TokenData
 
+@lru_cache
+def get_jwt_settings() -> JwtSettings:
+    return JwtSettings()
 
 def get_user_service(database_session: Annotated[Session, Depends(get_db)]) -> UserService:
     return UserService(database_session)
 
-def get_auth_service(user_service: Annotated[UserService, Depends(get_user_service)]) -> AuthService:
-    return AuthService(user_service)
+def get_auth_service(
+        user_service: Annotated[UserService, Depends(get_user_service)],
+        jwt_settings: Annotated[JwtSettings, Depends(get_jwt_settings)],
+) -> AuthService:
+    return AuthService(user_service, jwt_settings)
 
 security = HTTPBearer()
 
+
+
 def get_current_authenticated_user(
     authorization: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    user_service: Annotated[UserService, Depends(get_user_service)]
+    user_service: Annotated[UserService, Depends(get_user_service)],
+    jwt_settings: Annotated[JwtSettings, Depends(get_jwt_settings)],
 ) -> models.User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -34,7 +44,7 @@ def get_current_authenticated_user(
     )
     token = authorization.credentials
     try:
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(token, jwt_settings.JWT_SECRET_KEY, algorithms=[jwt_settings.JWT_ALGORITHM])
         username = payload.get(AuthLiterals.JWT_SUBJECT.value)
         if username is None:
             raise credentials_exception
@@ -45,3 +55,5 @@ def get_current_authenticated_user(
     if user is None:
         raise credentials_exception
     return user
+
+

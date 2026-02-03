@@ -3,15 +3,22 @@ from typing import Generator, Any
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
 
-DATABASE_URL = "postgresql+psycopg2://postgres:postgres@172.17.0.2:5432/app"
-# для SQLite: "sqlite:///./foo.db"
-# DATABASE_URL = "sqlite:///foo.db"
+from config import DatabaseSettings, CommonSettings
 
-engine = create_engine(
-    DATABASE_URL,
-    echo=True,
-    pool_pre_ping=True,
-)
+database_settings = DatabaseSettings()
+
+DATABASE_URL = f"{database_settings.DATABASE_DRIVER}://{database_settings.DATABASE_USER}:{database_settings.DATABASE_PASSWORD}@{database_settings.DATABASE_HOST}:{database_settings.DATABASE_PORT}/{database_settings.DATABASE_NAME}"
+
+common_settings = CommonSettings()
+
+engine_parameters = {
+    "pool_pre_ping": True,
+}
+
+if common_settings.DEBUG:
+    engine_parameters["echo"] = True
+
+engine = create_engine(DATABASE_URL, **engine_parameters)
 
 constraint_naming_conventions = {
     "ix": "ix_%(column_0_label)s",

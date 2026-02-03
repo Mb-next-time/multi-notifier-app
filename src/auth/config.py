@@ -1,7 +1,9 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Later change to "Settings and Environment Variables"
-# https://fastapi.tiangolo.com/advanced/settings/
+class JwtSettings(BaseSettings):
+    JWT_SECRET_KEY: str
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int
+    JWT_ALGORITHM: str = "HS256"
 
-JWT_SECRET_KEY = "b9a2c8d4b979b5a4fdaf4b11a9d85d41583c6cafd9d14d4998325bf370e9d50d"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-JWT_ALGORITHM = "HS256"
+    model_config = SettingsConfigDict(env_file=".env.jwt")
+

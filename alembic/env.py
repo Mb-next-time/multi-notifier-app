@@ -21,8 +21,10 @@ if config.config_file_name is not None:
 # target_metadata = None
 from notifications.models import Notification
 from auth.models import User
-from database import Base
+from database import Base, database_settings
 target_metadata = Base.metadata
+database_url = f"{database_settings.DATABASE_DRIVER}://{database_settings.DATABASE_USER}:{database_settings.DATABASE_PASSWORD}@{database_settings.DATABASE_HOST}:{database_settings.DATABASE_PORT}/{database_settings.DATABASE_NAME}"
+config.set_main_option("sqlalchemy.url", database_url)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

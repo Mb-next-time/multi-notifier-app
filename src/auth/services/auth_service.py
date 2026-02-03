@@ -2,7 +2,7 @@ from datetime import timedelta, datetime, timezone
 
 from sqlalchemy.exc import IntegrityError
 
-from auth.config import ACCESS_TOKEN_EXPIRE_MINUTES
+from auth.config import JwtSettings
 from auth.exceptions import AuthIsFailed, AuthDuplication
 from auth.schemas import UserIn, Token
 from auth import models
@@ -13,8 +13,9 @@ from auth.constants import AuthLiterals
 
 class AuthService:
 
-    def __init__(self, user_service: UserService):
+    def __init__(self, user_service: UserService, jwt_settings: JwtSettings):
         self.user_service = user_service
+        self.jwt_settings = jwt_settings
 
     def _authenticate_user(self, user_in: UserIn) -> models.User:
         user = self.user_service.get_by_username(user_in.username)
@@ -34,8 +35,10 @@ class AuthService:
     def login_user(self, user_in: UserIn) -> Token:
         user = self._authenticate_user(user_in)
         user.last_login = datetime.now(timezone.utc)
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = TokenUtils.create_access_token(
-            data={AuthLiterals.JWT_SUBJECT.value: user.username}, expires_delta=access_token_expires
+            data={AuthLiterals.JWT_SUBJECT.value: user.username},
+            algorithm=self.jwt_settings.JWT_ALGORITHM,
+            secret_key=self.jwt_settings.JWT_SECRET_KEY,
+            expires_delta=timedelta(minutes=self.jwt_settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES),
         )
         return Token(access_token=access_token, token_type="bearer")
