@@ -5,6 +5,7 @@ from unittest.mock import Mock
 
 import pytest
 from fastapi import Depends
+from sqlalchemy.exc import DatabaseError, DBAPIError
 
 from auth.dependencies import get_current_authenticated_user
 from auth.models import User
@@ -103,3 +104,8 @@ def client_factory_with_raised_exception():
         with TestClientNotificationsBuilder() as test_client_notifications_builder:
             yield test_client_notifications_builder.add_exception(method, exception).add_auth().build()
     return _create
+
+@pytest.fixture()
+def database_error():
+    str_exc = "Some error with database"
+    return DatabaseError(str_exc, None, BaseException(str_exc))

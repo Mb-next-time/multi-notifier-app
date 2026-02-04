@@ -103,10 +103,10 @@ def test_update_invalid_cases(client_auth: TestClient, notification_id: int, jso
     response = client_auth.put(f"/{NotificationLiteral.URL.value}/{notification_id}", json=json_body_notification)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
-def test_update_occurred_database_exception(client_factory_with_raised_exception, valid_json_body_notification):
-    with client_factory_with_raised_exception(service_method, DatabaseError) as client:
-        response = client.put(f"/{NotificationLiteral.URL.value}/1", json=valid_json_body_notification)
-        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+def test_update_occurred_database_exception(client_factory_with_raised_exception, valid_json_body_notification, database_error):
+    with pytest.raises(DatabaseError):
+        with client_factory_with_raised_exception(service_method, database_error) as client:
+            client.put(f"/{NotificationLiteral.URL.value}/1", json=valid_json_body_notification)
 
 def test_update_not_found_notification_exception(client_factory_with_raised_exception, valid_json_body_notification):
     with client_factory_with_raised_exception(service_method, NotificationNotFound) as client:

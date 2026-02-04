@@ -1,8 +1,5 @@
 from enum import Enum
 
-from fastapi import HTTPException
-from starlette import status
-
 
 class NotificationLiteral(Enum):
     HOW_OFTEN = "how_often"
@@ -35,8 +32,3 @@ class RepeatInterval(Enum):
 VALID_REPEAT_INTERVALS = {
     repeat_interval.value for repeat_interval in RepeatInterval
 }
-
-EXCEPTION_NOTIFICATION_NOT_FOUND = HTTPException(
-    status_code=status.HTTP_404_NOT_FOUND,
-    detail=NotificationLiteral.NOTIFICATION_NOT_FOUND.value
-)

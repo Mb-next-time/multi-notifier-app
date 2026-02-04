@@ -82,10 +82,10 @@ def test_create_invalid_cases(client_auth: TestClient, json_body_notification):
     response = client_auth.post(f"/{NotificationLiteral.URL.value}/", json=json_body_notification)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
-def test_create_occurred_database_exception(client_factory_with_raised_exception, valid_json_body_notification):
-    with client_factory_with_raised_exception("create", DatabaseError) as client:
-        response = client.post(f"/{NotificationLiteral.URL.value}/", json=valid_json_body_notification)
-        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+def test_create_occurred_database_exception(client_factory_with_raised_exception, valid_json_body_notification, database_error):
+    with client_factory_with_raised_exception("create", database_error) as client:
+        with pytest.raises(DatabaseError):
+            client.post(f"/{NotificationLiteral.URL.value}/", json=valid_json_body_notification)
 
 def test_create_check_not_auth_user(client_not_auth, valid_json_body_notification):
     response = client_not_auth.post(f"/{NotificationLiteral.URL.value}/", json=valid_json_body_notification)

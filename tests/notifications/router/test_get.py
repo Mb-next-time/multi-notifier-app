@@ -15,10 +15,10 @@ def test_get_by_occurred_not_found_notification_exception(client_factory_with_ra
         response = client.get(f"/{NotificationLiteral.URL.value}/1")
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-def test_get_by_occurred_database_exception(client_factory_with_raised_exception):
-    with client_factory_with_raised_exception(service_method, DatabaseError) as client:
-        response = client.get(f"/{NotificationLiteral.URL.value}/1")
-        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+def test_get_by_occurred_database_exception(client_factory_with_raised_exception, database_error):
+    with pytest.raises(DatabaseError):
+        with client_factory_with_raised_exception(service_method, database_error) as client:
+            client.get(f"/{NotificationLiteral.URL.value}/1")
 
 @pytest.mark.parametrize(
     NotificationLiteral.NOTIFICATION_ID.value, [1,2,3]

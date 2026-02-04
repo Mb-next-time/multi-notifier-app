@@ -1,15 +1,12 @@
-import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Path, status
 from fastapi.params import Depends, Query
 
-from notifications.constants import NotificationLiteral, EXCEPTION_NOTIFICATION_NOT_FOUND
+from notifications.constants import NotificationLiteral
 from notifications.schemas import BodyNotification, UpdateNotification, ResponseNotification, FilterNotification
 from notifications.service import NotificationService
 from notifications.dependencies import get_notification_service
-from notifications.exceptions import NotificationNotFound
-from constants import EXCEPTION_INTERNAL_ERROR
 
 
 notification_router = APIRouter(prefix=f"/{NotificationLiteral.URL.value}", tags=[NotificationLiteral.TAGS])
@@ -22,12 +19,7 @@ async def list_notifications(
     notification_service: Annotated[NotificationService,Depends(get_notification_service)],
     filter_notification: Annotated[FilterNotification, Query()],
 ):
-    try:
-        notifications = notification_service.get_list(filter_notification)
-    except Exception as error:
-        logging.warning(str(error))
-        raise EXCEPTION_INTERNAL_ERROR
-    return notifications
+    return notification_service.get_list(filter_notification)
 
 @notification_router.post(
     path="/",
@@ -38,11 +30,7 @@ async def create_notification(
     notification: BodyNotification,
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
 ):
-    try:
-        created_notification = notification_service.create(notification)
-    except Exception as error:
-        logging.warning(str(error))
-        raise EXCEPTION_INTERNAL_ERROR
+    created_notification = notification_service.create(notification)
     return created_notification
 
 @notification_router.get(
@@ -53,14 +41,7 @@ async def get_notification(
     notification_id: Annotated[int, Path(gt=0)],
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
 ):
-    try:
-        notification = notification_service.get(notification_id)
-    except NotificationNotFound as error:
-        logging.warning(str(error))
-        raise EXCEPTION_NOTIFICATION_NOT_FOUND
-    except Exception as error:
-        logging.warning(str(error))
-        raise EXCEPTION_INTERNAL_ERROR
+    notification = notification_service.get(notification_id)
     return notification
 
 @notification_router.put(
@@ -72,14 +53,7 @@ async def update_notification(
     notification: UpdateNotification,
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
 ):
-    try:
-        updated_notification = notification_service.update(notification_id, notification)
-    except NotificationNotFound as error:
-        logging.warning(str(error))
-        raise EXCEPTION_NOTIFICATION_NOT_FOUND
-    except Exception as error:
-        logging.warning(str(error))
-        raise EXCEPTION_INTERNAL_ERROR
+    updated_notification = notification_service.update(notification_id, notification)
     return updated_notification
 
 @notification_router.delete(
@@ -90,11 +64,4 @@ async def delete_notification(
     notification_id: Annotated[int, Path(gt=0)],
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
 ):
-    try:
-        notification_service.delete(notification_id)
-    except NotificationNotFound as error:
-        logging.warning(str(error))
-        raise EXCEPTION_NOTIFICATION_NOT_FOUND
-    except Exception as error:
-        logging.warning(str(error))
-        raise EXCEPTION_INTERNAL_ERROR
+    notification_service.delete(notification_id)
