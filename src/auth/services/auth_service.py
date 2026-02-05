@@ -1,9 +1,7 @@
 from datetime import timedelta, datetime, timezone
 
-from sqlalchemy.exc import IntegrityError
-
 from auth.config import JwtSettings
-from auth.exceptions import AuthIsFailed, AuthDuplication
+from auth.exceptions import AuthIsFailed
 from auth.schemas import UserIn, Token
 from auth import models
 from auth.utils import hash_password, verify_password, TokenUtils
@@ -17,23 +15,19 @@ class AuthService:
         self.user_service = user_service
         self.jwt_settings = jwt_settings
 
-    def _authenticate_user(self, user_in: UserIn) -> models.User:
-        user = self.user_service.get_by_username(user_in.username)
+    async def _authenticate_user(self, user_in: UserIn) -> models.User:
+        user = await self.user_service.get_by_username(user_in.username)
         if not (user and verify_password(user_in.password, user.password)):
             raise AuthIsFailed
         return user
 
-    def register_user(self, user_in: UserIn) -> models.User:
+    async def register_user(self, user_in: UserIn) -> models.User:
         user_in.password = hash_password(user_in.password)
-        try:
-            user = self.user_service.create_user(user_in)
-        except IntegrityError as e:
-            raise AuthDuplication
-
+        user = await self.user_service.create_user(user_in)
         return user
 
-    def login_user(self, user_in: UserIn) -> Token:
-        user = self._authenticate_user(user_in)
+    async def login_user(self, user_in: UserIn) -> Token:
+        user = await self._authenticate_user(user_in)
         user.last_login = datetime.now(timezone.utc)
         access_token = TokenUtils.create_access_token(
             data={AuthLiterals.JWT_SUBJECT.value: user.username},

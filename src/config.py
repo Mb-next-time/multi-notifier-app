@@ -6,7 +6,8 @@ class CommonSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env.common")
 
 class DatabaseSettings(BaseSettings):
-    DATABASE_DRIVER: str = "sqlite"
+    DATABASE_ASYNC_DRIVER: str
+    DATABASE_SYNC_DRIVER: str
     DATABASE_USER: str
     DATABASE_PASSWORD: str
     DATABASE_USER: str

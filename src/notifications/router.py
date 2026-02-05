@@ -6,8 +6,7 @@ from fastapi.params import Depends, Query
 from notifications.constants import NotificationLiteral
 from notifications.schemas import BodyNotification, UpdateNotification, ResponseNotification, FilterNotification
 from notifications.service import NotificationService
-from notifications.dependencies import get_notification_service
-
+from notifications.dependencies import  get_notification_service
 
 notification_router = APIRouter(prefix=f"/{NotificationLiteral.URL.value}", tags=[NotificationLiteral.TAGS])
 
@@ -19,7 +18,7 @@ async def list_notifications(
     notification_service: Annotated[NotificationService,Depends(get_notification_service)],
     filter_notification: Annotated[FilterNotification, Query()],
 ):
-    return notification_service.get_list(filter_notification)
+    return await notification_service.get_list(filter_notification)
 
 @notification_router.post(
     path="/",
@@ -30,7 +29,7 @@ async def create_notification(
     notification: BodyNotification,
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
 ):
-    created_notification = notification_service.create(notification)
+    created_notification = await notification_service.create(notification)
     return created_notification
 
 @notification_router.get(
@@ -41,7 +40,7 @@ async def get_notification(
     notification_id: Annotated[int, Path(gt=0)],
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
 ):
-    notification = notification_service.get(notification_id)
+    notification = await notification_service.get(notification_id)
     return notification
 
 @notification_router.put(
@@ -53,7 +52,7 @@ async def update_notification(
     notification: UpdateNotification,
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
 ):
-    updated_notification = notification_service.update(notification_id, notification)
+    updated_notification = await notification_service.update(notification_id, notification)
     return updated_notification
 
 @notification_router.delete(
@@ -64,4 +63,4 @@ async def delete_notification(
     notification_id: Annotated[int, Path(gt=0)],
     notification_service: Annotated[NotificationService, Depends(get_notification_service)],
 ):
-    notification_service.delete(notification_id)
+    await notification_service.delete(notification_id)

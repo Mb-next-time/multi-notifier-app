@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 import pytest
 from fastapi import Depends
-from sqlalchemy.exc import DatabaseError, DBAPIError
+from sqlalchemy.exc import DatabaseError
 
 from auth.dependencies import get_current_authenticated_user
 from auth.models import User
@@ -24,7 +24,7 @@ INVALID_FORMAT_TIMESTAMP = "2026-01-29T13:AD:00Z"
 
 class FakeNotificationService:
 
-    def get_list(self, filter_notification: FilterNotification):
+    async def get_list(self, filter_notification: FilterNotification):
         return [
             Notification(id=1, repeat_interval={
                 NotificationLiteral.HOW_OFTEN.value: RepeatInterval.ONCE.value,
@@ -40,22 +40,22 @@ class FakeNotificationService:
             }, startup_at=datetime_in_future),
         ]
 
-    def create(self, body_notification: schemas.BodyNotification) -> Notification:
+    async def create(self, body_notification: schemas.BodyNotification) -> Notification:
         return Notification(id=5, **body_notification.model_dump())
 
-    def get(self, notification_id: int) -> Notification:
+    async def get(self, notification_id: int) -> Notification:
         return Notification(id=notification_id, repeat_interval={
             NotificationLiteral.HOW_OFTEN.value: RepeatInterval.ONCE.value,
             NotificationLiteral.STEP.value: 0,
         }, startup_at=datetime_in_future)
 
-    def update(self, notification_id: int, body_notification: schemas.UpdateNotification) -> Notification:
-        notification = self.get(notification_id)
+    async def update(self, notification_id: int, body_notification: schemas.UpdateNotification) -> Notification:
+        notification = await self.get(notification_id)
         for field, value in body_notification.model_dump(exclude_unset=True).items():
             setattr(notification, field, value)
         return notification
 
-    def delete(self, notification_id: int) -> None:
+    async def delete(self, notification_id: int) -> None:
         return
 
 @pytest.fixture

@@ -24,9 +24,9 @@ async def register(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
     try:
-        created_user = auth_service.register_user(user_in)
+        created_user = await auth_service.register_user(user_in)
     except AuthDuplication as error:
-        logging.exception(error)
+        logging.warning(error)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Unfortunately, a user with this username already exists. Please choose another username.",
@@ -44,9 +44,9 @@ async def login(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> Token:
     try:
-        token = auth_service.login_user(user_in)
+        token = await auth_service.login_user(user_in)
     except AuthIsFailed as error:
-        logging.exception(error)
+        logging.warning(error)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",

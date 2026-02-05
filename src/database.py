@@ -1,13 +1,14 @@
-from typing import Generator, Any
+from collections.abc import AsyncGenerator
 
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
+from sqlalchemy import MetaData
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from config import DatabaseSettings, CommonSettings
 
 database_settings = DatabaseSettings()
 
-DATABASE_URL = f"{database_settings.DATABASE_DRIVER}://{database_settings.DATABASE_USER}:{database_settings.DATABASE_PASSWORD}@{database_settings.DATABASE_HOST}:{database_settings.DATABASE_PORT}/{database_settings.DATABASE_NAME}"
+DATABASE_URL = f"{database_settings.DATABASE_ASYNC_DRIVER}://{database_settings.DATABASE_USER}:{database_settings.DATABASE_PASSWORD}@{database_settings.DATABASE_HOST}:{database_settings.DATABASE_PORT}/{database_settings.DATABASE_NAME}"
 
 common_settings = CommonSettings()
 
@@ -18,7 +19,7 @@ engine_parameters = {
 if common_settings.DEBUG:
     engine_parameters["echo"] = True
 
-engine = create_engine(DATABASE_URL, **engine_parameters)
+engine = create_async_engine(DATABASE_URL, **engine_parameters)
 
 constraint_naming_conventions = {
     "ix": "ix_%(column_0_label)s",
@@ -31,15 +32,16 @@ constraint_naming_conventions = {
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=constraint_naming_conventions)
 
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+AsyncSessionLocal = async_sessionmaker(
+    engine,
+    expire_on_commit=False
+)
 
-def get_db() -> Generator[Session, Any, None]:
-    database_session = SessionLocal()
-    try:
-        yield database_session
-        database_session.commit()
-    except Exception:
-        database_session.rollback()
-        raise
-    finally:
-        database_session.close()
+async def get_database_session() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as database_session:
+        try:
+            yield database_session
+            await database_session.commit()
+        except Exception:
+            await database_session.rollback()
+            raise
