@@ -1,14 +1,8 @@
 from enum import Enum
 
-from fastapi import HTTPException
-from starlette import status
-
+VERSION_1 = "/v1"
+API = "/api"
+API_URL_V1 = f"{API}{VERSION_1}"
 
 class HttpClientCommonErrorsLiteral(Enum):
     SOMETHING_WENT_WRONG = "Something went wrong, please try again later"
-
-
-EXCEPTION_INTERNAL_ERROR = HTTPException(
-    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-    detail=HttpClientCommonErrorsLiteral.SOMETHING_WENT_WRONG.value
-)

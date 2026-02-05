@@ -7,7 +7,6 @@ class NotificationLiteral(Enum):
     TAGS = "notifications"
     NOTIFICATION_ID = "notification_id"
     NOTIFICATION_NOT_FOUND = "Notification not found"
-    SOMETHING_WENT_WRONG = "Something went wrong, please try again later"
     URL = "notifications"
 
 
