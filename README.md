@@ -2,7 +2,7 @@
 Application for creating notifications and alerting notifications by time through different channels.  
 First version will work with email notifications. 
 
-### Installing
+### Installing (main + dev dependencies)
 `poetry install`
 ### Note: Please activate your virtual environment before run commands
 `$(poetry env activate)`
