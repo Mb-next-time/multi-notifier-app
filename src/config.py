@@ -17,3 +17,11 @@ class DatabaseSettings(BaseSettings):
     DATABASE_PORT: int
 
     model_config = SettingsConfigDict(env_file=".env.database")
+
+documentation_urls = {}
+if not CommonSettings().DEBUG:
+    documentation_urls.update({
+        "docs_url": None,
+        "redoc_url": None,
+        "openapi_url": None,
+    })

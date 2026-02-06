@@ -11,12 +11,13 @@ from notifications.router import notification_router
 from auth.router import auth_router
 from constants import HttpClientCommonErrorsLiteral, API_URL_V1
 from notifications import handlers
+from config import documentation_urls
 
 api_router = APIRouter(prefix=API_URL_V1)
 api_router.include_router(notification_router)
 api_router.include_router(auth_router)
 
-app = FastAPI()
+app = FastAPI(**documentation_urls)
 app.include_router(api_router)
 app.add_exception_handler(NotificationNotFound, handlers.notification_not_found_exception_handler)
 
