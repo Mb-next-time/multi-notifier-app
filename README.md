@@ -12,3 +12,5 @@ First version will work with email notifications.
 `pytest`
 ### Local start
 `fastapi dev src/main.py`
+### Build and start docker containers
+`docker compose up -d`
