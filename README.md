@@ -13,6 +13,6 @@ First version will work with email notifications.
 ### Local start
 `fastapi dev src/main.py`
 ### Create env files
-`create_env_files.sh`
+`./create_env_files.sh`
 ### Build and start docker containers
 `docker compose up -d`
