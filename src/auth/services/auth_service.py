@@ -1,7 +1,9 @@
 from datetime import timedelta, datetime, timezone
 
+from sqlalchemy.exc import IntegrityError
+
 from auth.config import JwtSettings
-from auth.exceptions import AuthIsFailed
+from auth.exceptions import AuthIsFailed, AuthDuplication
 from auth.schemas import UserIn, Token
 from auth import models
 from auth.utils import hash_password, verify_password, TokenUtils
@@ -22,8 +24,12 @@ class AuthService:
         return user
 
     async def register_user(self, user_in: UserIn) -> models.User:
-        user_in.password = hash_password(user_in.password)
-        user = await self.user_service.create_user(user_in)
+        try:
+            user_in.password = hash_password(user_in.password)
+            user = await self.user_service.create_user(user_in)
+        except IntegrityError:
+            raise AuthDuplication
+
         return user
 
     async def login_user(self, user_in: UserIn) -> Token:
