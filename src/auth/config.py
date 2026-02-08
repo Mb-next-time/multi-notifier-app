@@ -5,5 +5,5 @@ class JwtSettings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int
     JWT_ALGORITHM: str = "HS256"
 
-    model_config = SettingsConfigDict(env_file=".env.jwt")
+    model_config = SettingsConfigDict(env_file=".env.api.jwt")
 

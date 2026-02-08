@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class CommonSettings(BaseSettings):
     DEBUG: bool = False
 
-    model_config = SettingsConfigDict(env_file=".env.common")
+    model_config = SettingsConfigDict(env_file=".env.api.common")
 
 class DatabaseSettings(BaseSettings):
     DATABASE_ASYNC_DRIVER: str
@@ -16,7 +16,7 @@ class DatabaseSettings(BaseSettings):
     DATABASE_NAME: str
     DATABASE_PORT: int
 
-    model_config = SettingsConfigDict(env_file=".env.database")
+    model_config = SettingsConfigDict(env_file=".env.api.database")
 
 documentation_urls = {}
 if not CommonSettings().DEBUG:
