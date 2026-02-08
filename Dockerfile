@@ -37,5 +37,5 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH" \
 RUN rm $VIRTUAL_ENV/bin/pip* /usr/local/bin/pip*
 RUN addgroup appgroup && adduser appuser && adduser appuser appgroup
 USER appuser
-WORKDIR ./src
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+
+WORKDIR src
