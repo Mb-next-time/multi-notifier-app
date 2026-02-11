@@ -1,25 +1,25 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import String, Text, JSON, ForeignKey, DateTime
+from sqlalchemy import String, Text, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from notifications.constants import NotificationStatus
 
-from notifications.constants import NotificationLiteral, RepeatInterval
 from database import Base
 
 class Notification(Base):
     __tablename__ = "notification"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str | None] = mapped_column(String(255), default=None)
-    body: Mapped[str | None] = mapped_column(Text(), default=None)
+    title: Mapped[str] = mapped_column(String(255))
+    body: Mapped[str] = mapped_column(Text())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
-    is_active: Mapped[bool] = mapped_column(default=True)
-    repeat_interval = mapped_column(JSON(), default={
-        NotificationLiteral.HOW_OFTEN: RepeatInterval.ONCE,
-        NotificationLiteral.STEP: 0
-    })
-    startup_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    status: Mapped[str] = mapped_column(String(32), default=NotificationStatus.ACTIVE.value)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.now(timezone.utc),
+        onupdate=datetime.now(timezone.utc),
+    )
 
     user: Mapped["User"] = relationship(back_populates="notifications")
 

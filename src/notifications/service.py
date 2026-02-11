@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, Sequence
 
 from notifications import schemas, models
+from notifications.constants import NotificationStatus
 from notifications.exceptions import NotificationNotFound
 from notifications.schemas import FilterNotification
 from auth.models import User
@@ -18,7 +19,7 @@ class NotificationService:
             select(models.Notification).where(
                 models.Notification.id == notification_id,
                 models.Notification.user_id == self.user.id,
-                models.Notification.is_active == True,
+                models.Notification.status != NotificationStatus.DELETED.value,
             )
         )).scalar_one_or_none()
         if not notification:
@@ -37,7 +38,7 @@ class NotificationService:
         notifications = (await self.database_session.execute(
             select(models.Notification).where(
                 models.Notification.user_id == self.user.id,
-                models.Notification.is_active == True,
+                models.Notification.status != NotificationStatus.DELETED.value,
             ).order_by(models.Notification.created_at.desc()).offset(offset).limit(page_limit)
         )).scalars().all()
         return notifications

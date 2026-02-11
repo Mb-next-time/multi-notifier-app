@@ -4,12 +4,7 @@ from fastapi import status
 from sqlalchemy.exc import DatabaseError
 
 from notifications.exceptions import NotificationNotFound
-from notifications.constants import NotificationLiteral, RepeatInterval, NotificationSchemeFields
-from tests.notifications.conftest import (
-    VALID_FORMAT_TIMESTAMP_OFFSET_ZONE,
-    VALID_FORMAT_TIMESTAMP_Z_ZONE,
-    INVALID_FORMAT_TIMESTAMP,
-)
+from notifications.constants import NotificationLiteral, NotificationSchemeField, NotificationStatus
 from constants import API_URL_V1
 
 service_method = "update"
@@ -18,33 +13,19 @@ API_URL = API_URL_V1
 @pytest.mark.parametrize(
     f"{NotificationLiteral.NOTIFICATION_ID.value}, json_body_notification", [
         (1, {
-            NotificationSchemeFields.TITLE.value: "title-1",
-            NotificationSchemeFields.BODY.value: "body-1",
-            NotificationSchemeFields.REPEAT_INTERVAL.value: {
-                NotificationLiteral.HOW_OFTEN.value: RepeatInterval.ONCE.value,
-                NotificationLiteral.STEP.value: 0,
-            },
-            NotificationSchemeFields.STARTUP_AT.value: VALID_FORMAT_TIMESTAMP_OFFSET_ZONE,
+            NotificationSchemeField.TITLE.value: "title-1",
         }),
         (2, {
-            NotificationSchemeFields.TITLE.value: None,
-            NotificationSchemeFields.REPEAT_INTERVAL.value: {
-                NotificationLiteral.HOW_OFTEN.value: RepeatInterval.HOURLY.value,
-                NotificationLiteral.STEP.value: 5,
-            },
-            NotificationSchemeFields.STARTUP_AT.value: VALID_FORMAT_TIMESTAMP_Z_ZONE,
+            NotificationSchemeField.BODY.value: "body-1",
         }),
         (3, {
-            NotificationSchemeFields.BODY.value: None,
-            NotificationSchemeFields.REPEAT_INTERVAL.value: {
-                NotificationLiteral.HOW_OFTEN.value: RepeatInterval.MONTHLY.value,
-                NotificationLiteral.STEP.value: 3,
-            },
-            NotificationSchemeFields.STARTUP_AT.value: VALID_FORMAT_TIMESTAMP_Z_ZONE,
+            NotificationSchemeField.STATUS.value: NotificationStatus.ACTIVE.value
         }),
         (4, {
-            NotificationSchemeFields.BODY.value: "edited-title",
-            NotificationSchemeFields.STARTUP_AT.value: VALID_FORMAT_TIMESTAMP_Z_ZONE,
+            NotificationSchemeField.STATUS.value: NotificationStatus.INACTIVE.value
+        }),
+        (4, {
+            NotificationSchemeField.STATUS.value: NotificationStatus.DELETED.value
         }),
     ]
 )
@@ -56,48 +37,7 @@ def test_update(client_auth: TestClient, notification_id: int, json_body_notific
 @pytest.mark.parametrize(
     f"{NotificationLiteral.NOTIFICATION_ID.value}, json_body_notification", [
         (1, {
-            NotificationSchemeFields.REPEAT_INTERVAL.value: {
-                "invalid_key_how_often": RepeatInterval.ONCE.value,
-                NotificationLiteral.STEP.value: 0,
-            }
-        }),
-        (2, {
-            NotificationSchemeFields.REPEAT_INTERVAL.value: {
-                NotificationLiteral.HOW_OFTEN.value: RepeatInterval.HOURLY.value,
-                "invalid_key_step": 5,
-            }
-        }),
-        (3, {
-            NotificationSchemeFields.REPEAT_INTERVAL.value: {
-                NotificationLiteral.HOW_OFTEN.value: "unknown_value",
-                NotificationLiteral.STEP.value: 3
-            }
-        }),
-        (4, {
-            NotificationSchemeFields.REPEAT_INTERVAL.value: {
-                NotificationLiteral.HOW_OFTEN.value: RepeatInterval.ONCE.value,
-                NotificationLiteral.STEP.value: -2
-            }
-        }),
-        (5, {
-            NotificationSchemeFields.REPEAT_INTERVAL.value: {
-                NotificationLiteral.HOW_OFTEN.value: RepeatInterval.ONCE.value,
-                NotificationLiteral.STEP.value: "value_is_not_int"
-            }
-        }),
-        (6, {
-            NotificationSchemeFields.REPEAT_INTERVAL.value: {
-                NotificationLiteral.HOW_OFTEN.value: RepeatInterval.ONCE.value,
-            }
-        }),
-        (7, {
-            NotificationSchemeFields.REPEAT_INTERVAL.value: {
-                NotificationLiteral.STEP.value: 3
-            }
-        }),
-        (8, {
-            NotificationSchemeFields.BODY.value: "edited-title",
-            NotificationSchemeFields.STARTUP_AT.value: INVALID_FORMAT_TIMESTAMP,
+            NotificationSchemeField.STATUS.value: "not_allowed_status_value"
         }),
     ]
 )
