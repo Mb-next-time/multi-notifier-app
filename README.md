@@ -7,7 +7,7 @@ First version will work with email notifications.
 ### Note: Please activate your virtual environment before run commands
 `$(poetry env activate)`
 ### Apply Migrations
-`alembic upgrade head`
+`alembic -c src/alembic.ini upgrade head`
 ### Run tests
 `pytest`
 ### Local start
