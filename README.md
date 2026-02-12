@@ -1,7 +1,9 @@
 ### Description
 Application for creating notifications and alerting notifications by time through different channels.  
 First version will work with email notifications. 
-
+### API Documentation URLs
+#### /redoc  
+#### /docs
 ### Installing (main + dev dependencies)
 `poetry install`
 ### Note: Please activate your virtual environment before run commands
