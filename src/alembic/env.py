@@ -22,6 +22,7 @@ if config.config_file_name is not None:
 from notifications.models import Notification
 from auth.models import User
 from channels.models import Channel
+from notification_schedule.models import NotificationSchedule
 from database import Base, database_settings
 target_metadata = Base.metadata
 database_url = f"{database_settings.DATABASE_SYNC_DRIVER}://{database_settings.DATABASE_USER}:{database_settings.DATABASE_PASSWORD}@{database_settings.DATABASE_HOST}:{database_settings.DATABASE_PORT}/{database_settings.DATABASE_NAME}"
