@@ -10,6 +10,7 @@ from notifications.exceptions import NotificationNotFound
 from notifications.router import notification_router
 from channels.router import channel_router
 from auth.router import auth_router
+from notification_schedule.router import notification_schedule_router
 from constants import HttpClientCommonErrorsLiteral, API_URL_V1
 from notifications import handlers
 from config import documentation_urls
@@ -18,6 +19,8 @@ api_router = APIRouter(prefix=API_URL_V1)
 api_router.include_router(notification_router)
 api_router.include_router(auth_router)
 api_router.include_router(channel_router)
+api_router.include_router(notification_schedule_router)
+
 
 app = FastAPI(**documentation_urls)
 app.include_router(api_router)
