@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from collections.abc import AsyncGenerator
 
 from sqlalchemy import MetaData
@@ -28,6 +29,9 @@ constraint_naming_conventions = {
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
     "pk": "pk_%(table_name)s",
 }
+
+def default_datetime():
+    return datetime.now(timezone.utc)
 
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=constraint_naming_conventions)

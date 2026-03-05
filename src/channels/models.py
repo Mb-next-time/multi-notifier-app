@@ -4,7 +4,7 @@ from sqlalchemy import String, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.schema import UniqueConstraint
 
-from database import Base
+from database import Base, default_datetime
 
 class Channel(Base):
     __tablename__ = "channel"
@@ -14,7 +14,7 @@ class Channel(Base):
     provider: Mapped[str] = mapped_column(String(255))
     # concrete email, phone number
     destination: Mapped[str] = mapped_column(String(255))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=default_datetime)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     is_verified: Mapped[bool] = mapped_column(default=False)
 
