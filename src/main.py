@@ -15,20 +15,22 @@ from constants import HttpClientCommonErrorsLiteral, API_URL_V1
 from notifications import handlers
 from config import documentation_urls
 
+
 api_router = APIRouter(prefix=API_URL_V1)
 api_router.include_router(notification_router)
 api_router.include_router(auth_router)
 api_router.include_router(channel_router)
 api_router.include_router(notification_schedule_router)
 
-
 app = FastAPI(**documentation_urls)
 app.include_router(api_router)
 app.add_exception_handler(NotificationNotFound, handlers.notification_not_found_exception_handler)
 
+logger = logging.getLogger(__name__)
+
 @app.exception_handler(Exception)
 async def common_exception_handler(request: Request, exc: Exception):
-    logging.exception("The unexpected exception")
+    logger.exception("The unexpected exception")
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content=jsonable_encoder({"detail": HttpClientCommonErrorsLiteral.SOMETHING_WENT_WRONG}),
