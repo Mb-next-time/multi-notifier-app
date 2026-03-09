@@ -20,5 +20,5 @@ class NotificationSchedule(Base):
     )
     repeat_settings: Mapped[dict] = mapped_column(JSON)
     name: Mapped[str] = mapped_column(String(255))
-    fire_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    next_fire_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
