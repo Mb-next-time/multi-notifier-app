@@ -8,6 +8,10 @@ class NotificationScheduleLiteral(Enum):
     URL = "notification_schedules"
     FIRE_AT = "fire_at"
 
+class NotificationScheduleStatus(Enum):
+    RUNNING = "running"
+    DONE = "done"
+
 
 class RepeatInterval(Enum):
     ONCE = "once"

@@ -1,10 +1,11 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import ForeignKey, DateTime, String
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base, default_datetime
+from notification_schedule.constants import NotificationScheduleStatus
 
 class NotificationSchedule(Base):
     __tablename__ = "notification_schedule"
@@ -21,4 +22,5 @@ class NotificationSchedule(Base):
     repeat_settings: Mapped[dict] = mapped_column(JSON)
     name: Mapped[str] = mapped_column(String(255))
     next_fire_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    status: Mapped[str] = mapped_column(String(16), default=NotificationScheduleStatus.RUNNING)
 
