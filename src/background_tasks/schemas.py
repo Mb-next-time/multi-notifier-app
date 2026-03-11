@@ -15,3 +15,7 @@ class NotificationAggregate(BaseModel):
     channel_id: int
     provider: str
     destination: str
+
+class ResultOfSendNotification(BaseModel):
+    code: str
+    error: str | None

@@ -22,16 +22,16 @@ class NotificationSchedule(BaseModel):
     channel_id: int
     notification_id: int
     repeat_settings: RepeatSettings
-    fire_at: datetime
+    next_fire_at: datetime
 
-    @field_validator(NotificationScheduleLiteral.FIRE_AT.value)
+    @field_validator(NotificationScheduleLiteral.NEXT_FIRE_AT.value)
     @classmethod
     def startup_at_validator(cls, value: datetime) -> datetime:
         if not value.tzinfo or value.utcoffset() is None:
-            raise ValueError(f"{NotificationScheduleLiteral.FIRE_AT.value} must include timezone offset (e.g. Z or +hh:mm/-hh:mm)")
+            raise ValueError(f"{NotificationScheduleLiteral.NEXT_FIRE_AT.value} must include timezone offset (e.g. Z or +hh:mm/-hh:mm)")
         value = value.astimezone(timezone.utc)
         if value < datetime.now(timezone.utc):
-            raise ValueError(f"{NotificationScheduleLiteral.FIRE_AT.value} must be set in future")
+            raise ValueError(f"{NotificationScheduleLiteral.NEXT_FIRE_AT.value} must be set in future")
         return value.astimezone(timezone.utc)
 
 class BodyNotificationSchedule(NotificationSchedule):
