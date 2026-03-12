@@ -4,7 +4,7 @@ from sqlalchemy import DateTime, String, UniqueConstraint, ForeignKey
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
-from database import Base, default_datetime
+from database import Base, current_datetime_utc
 
 class NotificationDelivery(Base):
     __tablename__ = "notification_delivery"
@@ -13,8 +13,8 @@ class NotificationDelivery(Base):
     channel: Mapped[dict] = mapped_column(JSON)
     notification: Mapped[dict] = mapped_column(JSON)
     notification_schedule_id: Mapped[int] = mapped_column()
-    delivered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=default_datetime)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=default_datetime)
+    delivered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=current_datetime_utc)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=current_datetime_utc)
     error_message: Mapped[str | None] = mapped_column(String(255))
     next_fire_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     status: Mapped[str] = mapped_column(String(16))

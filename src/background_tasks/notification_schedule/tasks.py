@@ -15,7 +15,7 @@ from background_tasks.notification_schedule.constants import (
 )
 from background_tasks.models import NotificationDelivery
 from background_tasks.notification_schedule.constants import NotificationDeliveryLiteral
-from database import get_database_session, default_datetime
+from database import get_database_session, current_datetime_utc
 from notification_schedule.models import NotificationSchedule
 from notification_schedule.constants import NotificationScheduleLiteral, RepeatInterval, NotificationScheduleStatus
 from notifications.models import Notification
@@ -71,7 +71,7 @@ async def send_notification(
             constraint=constraint,
             set_={
                 NotificationDeliveryLiteral.STATUS.value: NotificationDeliveryStatus.SUCCESS.value,
-                NotificationDeliveryLiteral.DELIVERED_AT.value: default_datetime()
+                NotificationDeliveryLiteral.DELIVERED_AT.value: current_datetime_utc()
             },
         )
     elif result.code == NotificationDeliveryStatus.FAILED.value:
@@ -114,7 +114,7 @@ async def prepare_notifications_to_sending(database_session: Annotated[AsyncSess
         Channel, NotificationSchedule.channel_id == Channel.id
     ).where(
         NotificationSchedule.status == NotificationScheduleStatus.RUNNING.value,
-        NotificationSchedule.next_fire_at <= default_datetime()
+        NotificationSchedule.next_fire_at <= current_datetime_utc()
     ).with_for_update(skip_locked=True).limit(NUMBER_OF_NOTIFICATIONS_TO_SEND))
     notification_aggregates: Sequence[RowMapping] = (await database_session.execute(statement)).mappings().all()
 

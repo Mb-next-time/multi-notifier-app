@@ -30,7 +30,7 @@ constraint_naming_conventions = {
     "pk": "pk_%(table_name)s",
 }
 
-def default_datetime():
+def current_datetime_utc():
     return datetime.now(timezone.utc)
 
 class Base(DeclarativeBase):
