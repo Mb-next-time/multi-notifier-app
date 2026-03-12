@@ -2,7 +2,6 @@ import asyncio
 import logging
 from typing import Annotated, Sequence, Any
 
-from dateutil.relativedelta import relativedelta
 from fastapi import Depends
 from sqlalchemy import select, RowMapping, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -13,18 +12,20 @@ from background_tasks.schemas import NotificationAggregate, ResultOfSendNotifica
 from background_tasks.notification_schedule.constants import (
     NotificationDeliveryStatus, MAX_DELIVERY_ATTEMPTS, NUMBER_OF_NOTIFICATIONS_TO_SEND
 )
+from background_tasks.notification_schedule.utils import factory_relativedelta
 from background_tasks.models import NotificationDelivery
 from background_tasks.notification_schedule.constants import NotificationDeliveryLiteral
 from database import get_database_session, current_datetime_utc
 from notification_schedule.models import NotificationSchedule
 from notification_schedule.constants import NotificationScheduleLiteral, RepeatInterval, NotificationScheduleStatus
+from notification_schedule.schemas import RepeatSettings
 from notifications.models import Notification
 from notifications.constants import NotificationLiteral, NotificationSchemeField
 from channels.models import Channel
 from channels.constants import ChannelLiteral, ChannelSchemeField
 
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 @broker.task
 async def send_notification(
@@ -123,25 +124,13 @@ async def prepare_notifications_to_sending(database_session: Annotated[AsyncSess
         await send_notification.kiq(notification_aggregate)
         # to do refactoring
         update_data = {}
-        if notification_aggregate.repeat_settings.how_often == RepeatInterval.ONCE.value:
+        repeat_settings: RepeatSettings = notification_aggregate.repeat_settings
+        if repeat_settings.how_often == RepeatInterval.ONCE.value:
             update_data[NotificationScheduleLiteral.STATUS.value] = NotificationScheduleStatus.DONE.value
-        elif notification_aggregate.repeat_settings.how_often == RepeatInterval.DAILY.value:
+        else:
             update_data[
                 NotificationScheduleLiteral.NEXT_FIRE_AT.value
-            ] = notification_aggregate.next_fire_at + relativedelta(days=notification_aggregate.repeat_settings.step)
-        elif notification_aggregate.repeat_settings.how_often == RepeatInterval.WEEKLY.value:
-            update_data[
-                NotificationScheduleLiteral.NEXT_FIRE_AT.value
-            ] = notification_aggregate.next_fire_at + relativedelta(weeks=notification_aggregate.repeat_settings.step)
-        elif notification_aggregate.repeat_settings.how_often == RepeatInterval.MONTHLY.value:
-            update_data[
-                NotificationScheduleLiteral.NEXT_FIRE_AT.value
-            ] = notification_aggregate.next_fire_at + relativedelta(months=notification_aggregate.repeat_settings.step)
-        elif notification_aggregate.repeat_settings.how_often == RepeatInterval.YEARLY.value:
-            update_data[
-                NotificationScheduleLiteral.NEXT_FIRE_AT.value
-            ] = notification_aggregate.next_fire_at + relativedelta(years=notification_aggregate.repeat_settings.step)
+            ] = notification_aggregate.next_fire_at + factory_relativedelta(repeat_settings.how_often, repeat_settings.step)
 
         await database_session.execute(update(NotificationSchedule).values(**update_data)
         .where(NotificationSchedule.id == notification_aggregate.notification_schedule_id))
-

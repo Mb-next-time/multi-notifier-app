@@ -12,4 +12,4 @@ class NotificationDeliveryStatus(Enum):
     FAILED = "failed"
 
 NUMBER_OF_NOTIFICATIONS_TO_SEND = 5
-MAX_DELIVERY_ATTEMPTS = 10
+MAX_DELIVERY_ATTEMPTS = 5
