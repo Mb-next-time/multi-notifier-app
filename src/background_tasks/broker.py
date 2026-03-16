@@ -1,11 +1,29 @@
 import logging
 
 import taskiq_fastapi
-from taskiq import TaskiqScheduler
+from taskiq import TaskiqScheduler, SmartRetryMiddleware
 from taskiq.schedule_sources import LabelScheduleSource
-from taskiq_aio_pika import AioPikaBroker
+from taskiq_aio_pika import AioPikaBroker, Queue
 
-broker = AioPikaBroker('amqp://guest:guest@172.17.0.2:5672')
+broker = AioPikaBroker(
+    url='amqp://guest:guest@172.17.0.2:5672',
+    delay_queue=Queue(
+        name="taskiq.delay_queue",
+        durable=True,
+        arguments={
+            "x-queue-type": "classic",
+            "x-dead-letter-exchange": "taskiq",
+            "x-dead-letter-routing-key": "taskiq",
+        },
+    ),
+).with_middlewares(SmartRetryMiddleware(
+        default_retry_count=5,
+        default_delay=10,
+        use_jitter=True,
+        use_delay_exponent=True,
+        max_delay_exponent=180
+    ))
+
 
 logger = logging.getLogger(__name__)
 

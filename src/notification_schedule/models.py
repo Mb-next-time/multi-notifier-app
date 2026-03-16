@@ -22,5 +22,4 @@ class NotificationSchedule(Base):
     repeat_settings: Mapped[dict] = mapped_column(JSON)
     name: Mapped[str] = mapped_column(String(255))
     next_fire_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    status: Mapped[str] = mapped_column(String(16), default=NotificationScheduleStatus.RUNNING)
-
+    status: Mapped[str] = mapped_column(String(16), default=NotificationScheduleStatus.RUNNING.value)
