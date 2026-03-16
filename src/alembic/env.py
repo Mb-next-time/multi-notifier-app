@@ -25,7 +25,7 @@ from channels.models import Channel
 from notification_schedule.models import NotificationSchedule
 from database import Base, database_settings
 target_metadata = Base.metadata
-database_url = f"{database_settings.DATABASE_SYNC_DRIVER}://{database_settings.DATABASE_USER}:{database_settings.DATABASE_PASSWORD}@{database_settings.DATABASE_HOST}:{database_settings.DATABASE_PORT}/{database_settings.DATABASE_NAME}"
+database_url = f"{database_settings.SYNC_DRIVER}://{database_settings.USERNAME}:{database_settings.PASSWORD}@{database_settings.HOST}:{database_settings.PORT}/{database_settings.DATABASE}"
 config.set_main_option("sqlalchemy.url", database_url)
 
 # other values from the config, defined by the needs of env.py,

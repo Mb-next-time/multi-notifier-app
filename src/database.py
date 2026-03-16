@@ -9,7 +9,7 @@ from config import DatabaseSettings, CommonSettings
 
 database_settings = DatabaseSettings()
 
-DATABASE_URL = f"{database_settings.DATABASE_ASYNC_DRIVER}://{database_settings.DATABASE_USER}:{database_settings.DATABASE_PASSWORD}@{database_settings.DATABASE_HOST}:{database_settings.DATABASE_PORT}/{database_settings.DATABASE_NAME}"
+DATABASE_URL = f"{database_settings.ASYNC_DRIVER}://{database_settings.USERNAME}:{database_settings.PASSWORD}@{database_settings.HOST}:{database_settings.PORT}/{database_settings.DATABASE}"
 
 common_settings = CommonSettings()
 

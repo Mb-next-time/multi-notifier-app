@@ -9,17 +9,15 @@ class CommonSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env.api.common")
 
 class DatabaseSettings(BaseSettings):
-    DATABASE_ASYNC_DRIVER: str
-    DATABASE_SYNC_DRIVER: str
-    DATABASE_USER: str
-    DATABASE_PASSWORD: str
-    DATABASE_USER: str
-    DATABASE_PASSWORD: str
-    DATABASE_HOST: str
-    DATABASE_NAME: str
-    DATABASE_PORT: int
+    ASYNC_DRIVER: str
+    SYNC_DRIVER: str
+    USERNAME: str
+    PASSWORD: str
+    HOST: str
+    DATABASE: str
+    PORT: int
 
-    model_config = SettingsConfigDict(env_file=".env.api.database")
+    model_config = SettingsConfigDict(env_file=".env.api.database", env_prefix="DATABASE_")
 
 documentation_urls = {}
 
