@@ -5,8 +5,15 @@ from taskiq import TaskiqScheduler, SmartRetryMiddleware
 from taskiq.schedule_sources import LabelScheduleSource
 from taskiq_aio_pika import AioPikaBroker, Queue
 
+from background_tasks.config import BrokerSettings
+
+broker_settings = BrokerSettings()
+logger = logging.getLogger(__name__)
+
+logger.info(broker_settings)
+
 broker = AioPikaBroker(
-    url='amqp://guest:guest@172.17.0.2:5672',
+    url=f'{broker_settings.PROTOCOL}://{broker_settings.USERNAME}:{broker_settings.PASSWORD}@{broker_settings.HOSTNAME}:{broker_settings.PORT}',
     delay_queue=Queue(
         name="taskiq.delay_queue",
         durable=True,
@@ -23,9 +30,6 @@ broker = AioPikaBroker(
         use_delay_exponent=True,
         max_delay_exponent=180
     ))
-
-
-logger = logging.getLogger(__name__)
 
 scheduler = TaskiqScheduler(
     broker=broker,
