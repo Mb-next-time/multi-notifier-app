@@ -43,7 +43,7 @@ async def get_current_authenticated_user(
     )
     token = authorization.credentials
     try:
-        payload = jwt.decode(token, jwt_settings.JWT_SECRET_KEY, algorithms=[jwt_settings.JWT_ALGORITHM])
+        payload = jwt.decode(token, jwt_settings.SECRET_KEY, algorithms=[jwt_settings.ALGORITHM])
         username = payload.get(AuthLiterals.JWT_SUBJECT.value)
         if username is None:
             raise credentials_exception

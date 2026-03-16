@@ -37,8 +37,8 @@ class AuthService:
         user.last_login = datetime.now(timezone.utc)
         access_token = TokenUtils.create_access_token(
             data={AuthLiterals.JWT_SUBJECT.value: user.username},
-            algorithm=self.jwt_settings.JWT_ALGORITHM,
-            secret_key=self.jwt_settings.JWT_SECRET_KEY,
-            expires_delta=timedelta(minutes=self.jwt_settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES),
+            algorithm=self.jwt_settings.ALGORITHM,
+            secret_key=self.jwt_settings.SECRET_KEY,
+            expires_delta=timedelta(minutes=self.jwt_settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         )
         return Token(access_token=access_token, token_type="bearer")
