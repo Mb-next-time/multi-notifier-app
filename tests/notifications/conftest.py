@@ -9,7 +9,7 @@ from sqlalchemy.exc import DatabaseError
 from auth.dependencies import get_current_authenticated_user
 from auth.models import User
 from notifications import schemas
-from notifications.constants import NotificationSchemeField, NotificationStatus
+from notifications.constants import NotificationSchemeField
 from notifications.dependencies import get_notification_service
 from notifications.schemas import FilterNotification
 from notifications.models import Notification
@@ -21,16 +21,16 @@ class FakeNotificationService:
 
     async def get_list(self, filter_notification: FilterNotification):
         return [
-            Notification(id=1, body="body-1", title="title-1", status=NotificationStatus.ACTIVE.value),
-            Notification(id=2, body="body-2", title="title-2", status=NotificationStatus.INACTIVE.value),
-            Notification(id=3, body="body-3", title="title-3", status=NotificationStatus.ACTIVE.value),
+            Notification(id=1, body="body-1"),
+            Notification(id=2, body="body-2"),
+            Notification(id=3, body="body-3"),
         ]
 
     async def create(self, body_notification: schemas.BodyNotification) -> Notification:
-        return Notification(id=5, **body_notification.model_dump(), status=NotificationStatus.ACTIVE.value)
+        return Notification(id=5, **body_notification.model_dump())
 
     async def get(self, notification_id: int) -> Notification:
-        return Notification(id=notification_id, body="body", title="title", status=NotificationStatus.ACTIVE.value)
+        return Notification(id=notification_id, body="body")
 
     async def update(self, notification_id: int, body_notification: schemas.UpdateNotification) -> Notification:
         notification = await self.get(notification_id)
@@ -44,7 +44,6 @@ class FakeNotificationService:
 @pytest.fixture
 def valid_json_body_notification():
     return {
-        NotificationSchemeField.TITLE.value: "title-1",
         NotificationSchemeField.BODY.value: "body-1",
     }
 

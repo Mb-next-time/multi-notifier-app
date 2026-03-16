@@ -4,7 +4,7 @@ from fastapi import status
 from sqlalchemy.exc import DatabaseError
 
 from notifications.exceptions import NotificationNotFound
-from notifications.constants import NotificationLiteral, NotificationSchemeField, NotificationStatus
+from notifications.constants import NotificationLiteral, NotificationSchemeField
 from constants import API_URL_V1
 
 service_method = "update"
@@ -13,37 +13,13 @@ API_URL = API_URL_V1
 @pytest.mark.parametrize(
     f"{NotificationLiteral.NOTIFICATION_ID.value}, json_body_notification", [
         (1, {
-            NotificationSchemeField.TITLE.value: "title-1",
-        }),
-        (2, {
             NotificationSchemeField.BODY.value: "body-1",
-        }),
-        (3, {
-            NotificationSchemeField.STATUS.value: NotificationStatus.ACTIVE.value
-        }),
-        (4, {
-            NotificationSchemeField.STATUS.value: NotificationStatus.INACTIVE.value
-        }),
-        (4, {
-            NotificationSchemeField.STATUS.value: NotificationStatus.DELETED.value
-        }),
+        })
     ]
 )
 def test_update(client_auth: TestClient, notification_id: int, json_body_notification):
     response = client_auth.put(f"{API_URL}/{NotificationLiteral.URL.value}/{notification_id}", json=json_body_notification)
     assert response.status_code == status.HTTP_200_OK
-
-# Invalid bodies for updating the notification
-@pytest.mark.parametrize(
-    f"{NotificationLiteral.NOTIFICATION_ID.value}, json_body_notification", [
-        (1, {
-            NotificationSchemeField.STATUS.value: "not_allowed_status_value"
-        }),
-    ]
-)
-def test_update_invalid_cases(client_auth: TestClient, notification_id: int, json_body_notification):
-    response = client_auth.put(f"{API_URL}/{NotificationLiteral.URL.value}/{notification_id}", json=json_body_notification)
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 def test_update_occurred_database_exception(client_factory_with_raised_exception, valid_json_body_notification, database_error):
     with pytest.raises(DatabaseError):

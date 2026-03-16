@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from fastapi import status
 from sqlalchemy.exc import DatabaseError
 
-from notifications.constants import NotificationLiteral,NotificationSchemeField
+from notifications.constants import NotificationLiteral
 from constants import API_URL_V1
 
 API_URL = API_URL_V1
@@ -15,14 +15,6 @@ def test_create(client_auth: TestClient, valid_json_body_notification):
 # Invalid bodies for creating the notification
 @pytest.mark.parametrize(
     "json_body_notification", [
-        {
-            NotificationSchemeField.TITLE.value: "title-1",
-            # empty field body
-        },
-        {
-            # empty field title
-            NotificationSchemeField.BODY.value: "body-1",
-        },
         # empty request body
         {
         },
