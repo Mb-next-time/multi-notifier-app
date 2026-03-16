@@ -1,5 +1,3 @@
-import logging
-
 import taskiq_fastapi
 from taskiq import TaskiqScheduler, SmartRetryMiddleware
 from taskiq.schedule_sources import LabelScheduleSource
@@ -8,9 +6,6 @@ from taskiq_aio_pika import AioPikaBroker, Queue
 from background_tasks.config import BrokerSettings
 
 broker_settings = BrokerSettings()
-logger = logging.getLogger(__name__)
-
-logger.info(broker_settings)
 
 broker = AioPikaBroker(
     url=f'{broker_settings.PROTOCOL}://{broker_settings.USERNAME}:{broker_settings.PASSWORD}@{broker_settings.HOSTNAME}:{broker_settings.PORT}',
